@@ -7,6 +7,7 @@ USER_ROLES = (
     ('admin', 'Administrador'),
     ('arbitro', 'Árbitro'),
     ('jugador', 'Jugador'),
+    ('apostador', 'Apostador'),
 )
 
 # Usuario personalizado
@@ -21,6 +22,13 @@ class Usuario(AbstractUser):
 
     def es_jugador(self):
         return self.rol == 'jugador'
+
+    @property
+    def saldo(self):
+        apuestas = self.apuestas.all()
+        ganancias = sum([apuesta.monto for apuesta in apuestas if apuesta.ganador])
+        gastos = sum([apuesta.monto for apuesta in apuestas])
+        return ganancias - gastos
 
 
 class Equipo(models.Model):
@@ -68,6 +76,17 @@ class Apuesta(models.Model):
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='apuestas')
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     fecha_apuesta = models.DateTimeField(auto_now_add=True)
+    ganador = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Apuesta de {self.usuario.username} en {self.equipo.nombre} por {self.monto}"
+
+class RecargaSaldo(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='recargas')
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    metodo_pago = models.CharField(max_length=50)
+    datos_pago = models.TextField(blank=True, null=True)  # JSON o texto con detalles
+    fecha_recarga = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Recarga de {self.monto} por {self.usuario.username} via {self.metodo_pago}"

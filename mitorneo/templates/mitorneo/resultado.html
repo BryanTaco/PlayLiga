@@ -39,6 +39,8 @@
   <!-- Título del partido -->
   <h1 id="titulo-partido">{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</h1>
 
+  <button onclick="window.location.href='{% url 'panel_admin' %}'" style="margin-bottom: 15px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Regresar al Panel</button>
+
   <!-- Barras de probabilidad -->
   <div id="probabilidades">
     <div id="equipo1-nombre" style="margin-bottom:10px;">{{ partido.equipo_local }} (0%)</div>

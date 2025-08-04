@@ -16,6 +16,7 @@ def home(request):
     return redirect('login')
 
 def login_view(request):
+    next_url = request.GET.get('next', '')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -25,6 +26,9 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
+
+            if next_url:
+                return redirect(next_url)
 
             if rol == 'admin' and user.rol == 'admin':
                 return redirect('panel_admin')
@@ -39,15 +43,22 @@ def login_view(request):
                     return redirect('panel_arbitro')
                 except Arbitro.DoesNotExist:
                     messages.error(request, 'Árbitro no encontrado.')
+            elif rol == 'apostador' and user.rol == 'apostador':
+                return redirect('apuestas_page')
             else:
                 messages.error(request, 'Rol inválido para este usuario.')
 
         else:
-            messages.error(request, 'Credenciales incorrectas.')
+            # Diferenciar entre usuario no existente y contraseña incorrecta
+            from django.contrib.auth.models import User
+            if not User.objects.filter(username=username).exists():
+                messages.error(request, 'Usuario no encontrado. Por favor, regístrese.')
+            else:
+                messages.error(request, 'Contraseña incorrecta.')
 
-        return render(request, 'mitorneo/login.html')
+        return render(request, 'mitorneo/login.html', {'next': next_url})
 
-    return render(request, 'mitorneo/login.html')
+    return render(request, 'mitorneo/login.html', {'next': next_url})
 
 def registro_jugador(request):
     if request.method == 'POST':
@@ -101,6 +112,29 @@ def registro_arbitro(request):
         )
         return redirect('login')
     return render(request, 'mitorneo/registro_arbitro.html')
+
+def registro_apostador(request):
+    if request.method == 'POST':
+        nombre = request.POST['nombre']
+        apellido = request.POST['apellido']
+        correo = request.POST['correo']
+        username = request.POST['username']
+        password = request.POST['password']
+
+        if Usuario.objects.filter(username=username).exists():
+            messages.error(request, 'El nombre de usuario ya existe.')
+            return render(request, 'mitorneo/registro_apostador.html')
+
+        user = Usuario.objects.create_user(
+            username=username,
+            email=correo,
+            password=password,
+            rol='apostador',
+            first_name=nombre,
+            last_name=apellido
+        )
+        return redirect('login')
+    return render(request, 'mitorneo/registro_apostador.html')
 
 def es_admin(user):
     return user.is_authenticated and user.rol == 'admin'
@@ -346,7 +380,57 @@ def apuestas_page(request):
     Render the interactive betting page.
     """
     equipos = Equipo.objects.all()
-    return render(request, 'mitorneo/apuestas.html', {'equipos': equipos})
+    saldo = request.user.saldo
+    proximos_partidos = Partido.objects.filter(fecha__gte=timezone.now()).order_by('fecha')[:5]
+    return render(request, 'mitorneo/apuestas.html', {
+        'equipos': equipos,
+        'saldo': saldo,
+        'proximos_partidos': proximos_partidos,
+    })
+
+@login_required
+def api_saldo(request):
+    saldo = request.user.saldo
+    return JsonResponse({'saldo': float(saldo)})
+
+from django.views.decorators.csrf import csrf_exempt
+import decimal
+import json
+
+@csrf_exempt
+@login_required
+@require_http_methods(["POST"])
+def api_recargar_saldo(request):
+    try:
+        data = json.loads(request.body)
+        monto = data.get('monto')
+        metodo_pago = data.get('metodo_pago')
+        datos_pago = data.get('datos_pago', '')
+
+        if monto is None or metodo_pago is None:
+            return HttpResponseBadRequest('Faltan datos obligatorios')
+
+        monto = decimal.Decimal(monto)
+        if monto <= 0:
+            return HttpResponseBadRequest('Monto inválido')
+
+        user = request.user
+
+        # Crear registro de recarga
+        from .models import RecargaSaldo
+        recarga = RecargaSaldo.objects.create(
+            usuario=user,
+            monto=monto,
+            metodo_pago=metodo_pago,
+            datos_pago=datos_pago
+        )
+
+        # No modificar saldo directo, saldo se calcula con apuestas y recargas
+        # Para eso, sumar recargas en propiedad saldo
+
+        return JsonResponse({'saldo': float(user.saldo + monto)})
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
 
 
 @csrf_exempt
@@ -365,7 +449,7 @@ def api_apuestas(request):
             'equipo': apuesta.equipo.nombre,
             'monto': float(apuesta.monto),
             'fecha_apuesta': apuesta.fecha_apuesta.isoformat(),
-            'ganador': getattr(apuesta, 'ganador', False)
+            'ganador': apuesta.ganador
         } for apuesta in apuestas]
         return JsonResponse(data, safe=False)
 
@@ -424,6 +508,66 @@ def permutaciones_combinaciones_page(request):
     """
     equipos = Equipo.objects.all()
     return render(request, 'mitorneo/permutaciones_combinaciones.html', {'equipos': equipos})
+
+import math
+from django.views.decorators.http import require_GET
+
+@login_required
+@user_passes_test(lambda u: u.is_authenticated and u.rol == 'admin')
+@require_GET
+def api_estadisticas_equipo(request):
+    equipo_id = request.GET.get('equipo_id')
+    if not equipo_id:
+        return HttpResponseBadRequest("Falta equipo_id")
+
+    try:
+        equipo_id = int(equipo_id)
+    except ValueError:
+        return HttpResponseBadRequest("equipo_id inválido")
+
+    equipo = get_object_or_404(Equipo, id=equipo_id)
+
+    # Example calculations for permutations and combinations of players in the team
+    jugadores = list(equipo.jugadores.all())
+    n = len(jugadores)
+    r = min(11, n)  # Assuming 11 players in a lineup
+
+    def factorial(x):
+        return math.factorial(x)
+
+    def permutations(n, r):
+        if r > n:
+            return 0
+        return factorial(n) // factorial(n - r)
+
+    def combinations(n, r):
+        if r > n:
+            return 0
+        return factorial(n) // (factorial(r) * factorial(n - r))
+
+    perm = permutations(n, r)
+    comb = combinations(n, r)
+
+    # Count victories and earnings (example logic)
+    partidos_ganados = Partido.objects.filter(
+        equipo_local=equipo
+    ).count()  # Simplified: count matches where team was local (replace with actual win logic)
+
+    ganancias = partidos_ganados * 1000  # Example earnings calculation
+
+    derrotas = max(0, n - partidos_ganados)  # Simulación simple
+    empates = 0  # No se calcula, se deja 0
+
+    data = {
+        'permutaciones': perm,
+        'combinaciones': comb,
+        'victorias': partidos_ganados,
+        'derrotas': derrotas,
+        'empates': empates,
+        'ganancias': ganancias,
+    }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 @login_required

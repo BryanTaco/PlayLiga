@@ -43,6 +43,26 @@
     </div>
 
     <div class="seccion">
+      <h2>Mi Saldo y Apuestas</h2>
+      <div class="viñeta-saldo">
+        <p><strong>Saldo Actual:</strong> ${{ jugador.usuario.saldo|floatformat:2 }}</p>
+      </div>
+      <div class="viñeta-apuestas">
+        <h3>Estado de Apuestas</h3>
+        {% for apuesta in jugador.usuario.apuestas.all %}
+          <p>
+            {{ apuesta.equipo.nombre }} - ${{ apuesta.monto|floatformat:2 }} - 
+            {% if apuesta.ganador %}
+              <span style="color: green;">Ganada</span>
+            {% else %}
+              <span style="color: red;">Pendiente/Perdida</span>
+            {% endif %}
+          </p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="seccion">
       <button onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 

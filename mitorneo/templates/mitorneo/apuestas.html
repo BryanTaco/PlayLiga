@@ -5,11 +5,108 @@
     <meta charset="UTF-8" />
     <title>Apuestas - PlayLiga</title>
     <link rel="stylesheet" href="{% static 'mitorneo/jugador_panel.css' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0b3d91;
+            color: #e0f7fa;
+            font-family: Arial, sans-serif;
+            padding: 1rem;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        #recargar-saldo-btn {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #saldo-container {
+            position: fixed;
+            top: 1rem;
+            right: 6rem;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 0.4rem;
+            border-radius: 4px;
+            border: none;
+            font-size: 1rem;
+        }
+        #apostar-btn {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        #apuestas-list {
+            margin-top: 2rem;
+            list-style-type: none;
+            padding: 0;
+        }
+        #apuestas-list li {
+            background-color: #004d40;
+            margin-bottom: 0.5rem;
+            padding: 0.6rem;
+            border-radius: 4px;
+        }
+        #grafica-estadisticas {
+            max-width: 600px;
+            margin: 2rem auto;
+            background-color: #004d40;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
     <h1>Apuestas Interactivas</h1>
-    <button onclick="window.history.back()">Regresar</button>
-    <div>
+    <button onclick="window.history.back()" style="background-color:#00796b; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Regresar</button>
+
+    <div id="saldo-container">
+        Saldo Actual: <span id="saldo-usuario">{{ saldo }}</span>
+    </div>
+    <a href="#" id="recargar-saldo-btn" title="Recargar saldo" style="position: fixed; top: 1rem; right: 1rem; padding: 0.3rem 0.6rem; font-size: 0.8rem; background-color: #00796b; color: white; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">+</a>
+
+    <!-- Modal para recargar saldo -->
+    <div id="modal-recarga" class="modal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: #004d40; margin: 10% auto; padding: 20px; border-radius: 8px; max-width: 400px; color: white;">
+            <span id="cerrar-modal" style="float: right; font-size: 1.5rem; cursor: pointer;">&times;</span>
+            <h3>Recargar Saldo</h3>
+            <label for="metodo-pago">Método de pago:</label>
+            <select id="metodo-pago" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; border: none;">
+                <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                <option value="paypal">PayPal</option>
+            </select>
+            <label for="monto-recarga">Monto a recargar:</label>
+            <input type="number" id="monto-recarga" min="1" step="0.01" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; border: none;" />
+            <button id="btn-confirmar-recarga" style="background-color: #00796b; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; width: 100%;">Confirmar</button>
+        </div>
+    </div>
+
+    <div class="form-group">
         <label for="equipo-select">Selecciona un equipo para apostar:</label>
         <select id="equipo-select">
             <option value="">--Seleccione un equipo--</option>
@@ -18,14 +115,34 @@
             {% endfor %}
         </select>
     </div>
-    <div>
+
+    <div class="form-group">
+        <label for="partido-select">Próximos partidos:</label>
+        <select id="partido-select">
+            <option value="">--Seleccione un partido--</option>
+            {% for partido in proximos_partidos %}
+            <option value="{{ partido.id }}">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }} - {{ partido.fecha|date:"d/m/Y H:i" }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
         <label for="monto-input">Monto a apostar:</label>
         <input type="number" id="monto-input" min="0" step="0.01" />
     </div>
+
+    <div>
+        <p>Probabilidad de victoria del equipo seleccionado: <span id="probabilidad-victoria">-</span></p>
+    </div>
+
     <button id="apostar-btn">Apostar</button>
 
     <h2>Tus apuestas</h2>
     <ul id="apuestas-list"></ul>
+
+    <div id="grafica-estadisticas">
+        <canvas id="chart-estadisticas"></canvas>
+    </div>
 
     <script src="{% static 'mitorneo/apuestas.js' %}"></script>
 </body>

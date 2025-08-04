@@ -9,23 +9,38 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="login-box">
+        <div class="login-box" style="width: 420px;">
             <h2>Bienvenido al Torneo</h2>
-            <div class="role-selection">
-                <button class="role-btn active" data-role="admin">
+            <div class="role-selection" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                <button class="role-btn active" data-role="admin" style="width: 100%;">
                     <i class="fas fa-user-shield"></i> Administrador
                 </button>
-                <button class="role-btn" data-role="jugador">
+                <button class="role-btn" data-role="jugador" style="width: 100%;">
                     <i class="fas fa-futbol"></i> Jugador
                 </button>
-                <button class="role-btn" data-role="arbitro">
+                <button class="role-btn" data-role="arbitro" style="width: 100%;">
                     <i class="fas fa-flag"></i> Árbitro
+                </button>
+                <button class="role-btn" data-role="apostador" style="width: 100%;">
+                    <i class="fas fa-coins"></i> Apostador
                 </button>
             </div>
 
             <form method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
                 <input type="hidden" id="roleInput" name="rol" value="admin">
+
+                {% if messages %}
+                <div class="messages" style="color: red; text-align: center; margin-bottom: 1rem;">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if request.GET.next %}
+                <p style="color: yellow; text-align: center;">Por favor, inicia sesión o regístrate para acceder a la sección de apuestas.</p>
+                {% endif %}
                 
                 <div class="form-group">
                     <label for="username">Usuario</label>
@@ -39,42 +54,50 @@
 
                 <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
             </form>
+            <div style="text-align: center; margin-top: 10px;">
+            </div>
 
             <div class="registro" id="registroOpcional" style="display: none;">
-    <p>¿No tienes cuenta?</p>
-    <a id="registroBtn" class="registro-btn">Registrarse</a>
-</div>
+                <p>¿No tienes cuenta?</p>
+                <a id="registroBtn" class="registro-btn">Registrarse</a>
+            </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const roleButtons = document.querySelectorAll(".role-btn");
-        const roleInput = document.getElementById("roleInput");
-        const registro = document.getElementById("registroOpcional");
-        const registroBtn = document.getElementById("registroBtn");
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const roleButtons = document.querySelectorAll(".role-btn");
+                    const roleInput = document.getElementById("roleInput");
+                    const registro = document.getElementById("registroOpcional");
+                    const registroBtn = document.getElementById("registroBtn");
 
-        roleButtons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                roleButtons.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
+                    roleButtons.forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            roleButtons.forEach(b => b.classList.remove("active"));
+                            btn.classList.add("active");
 
-                const rol = btn.dataset.role;
-                roleInput.value = rol;
+                            const rol = btn.dataset.role;
+                            roleInput.value = rol;
 
-                if (rol === "jugador") {
-                    registro.style.display = "block";
-                    registroBtn.style.display = "inline-block";
-                    registroBtn.setAttribute("href", "/torneo/registro/jugador/");
-                } else if (rol === "arbitro") {
-                    registro.style.display = "block";
-                    registroBtn.style.display = "inline-block";
-                    registroBtn.setAttribute("href", "/torneo/registro/arbitro/");
-                } else {
-                    registro.style.display = "none";
-                    registroBtn.style.display = "none";
-                }
-            });
-        });
-    });
-</script>
+                            if (rol === "jugador") {
+                                registro.style.display = "block";
+                                registroBtn.style.display = "inline-block";
+                                registroBtn.setAttribute("href", "/torneo/registro/jugador/");
+                            } else if (rol === "arbitro") {
+                                registro.style.display = "block";
+                                registroBtn.style.display = "inline-block";
+                                registroBtn.setAttribute("href", "/torneo/registro/arbitro/");
+                            } else if (rol === "apostador") {
+                                registro.style.display = "block";
+                                registroBtn.style.display = "inline-block";
+                                registroBtn.setAttribute("href", "/torneo/registro/apostador/");
+                                registroBtn.textContent = "Registrarse como Apostador";
+                                registroBtn.style.cursor = "pointer";
+                            } else {
+                                registro.style.display = "none";
+                                registroBtn.style.display = "none";
+                            }
+                        });
+                    });
+                });
+            </script>
 </body>
 </html>
