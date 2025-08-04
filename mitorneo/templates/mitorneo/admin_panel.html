@@ -9,7 +9,10 @@
 </head>
 <body>
   <div class="admin-panel">
-    <h1>Panel de Administración</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1>Panel de Administración</h1>
+      <button onclick="window.location.href='{% url 'login' %}'" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+    </div>
 
     <div class="card-container">
 
@@ -50,7 +53,9 @@
           <select id="equipo-asignar" required>
             <option value="">Seleccionar Equipo</option>
           </select>
+          <input type="text" id="posicion" placeholder="Posición (opcional)">
           <button type="submit">Asignar</button>
+          <button type="button" onclick="window.location.href='{% url 'admin_asignar_jugador_page' %}'">Asignar con más opciones</button>
         </form>
       </section>
 

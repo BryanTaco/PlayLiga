@@ -424,3 +424,29 @@ def permutaciones_combinaciones_page(request):
     """
     equipos = Equipo.objects.all()
     return render(request, 'mitorneo/permutaciones_combinaciones.html', {'equipos': equipos})
+
+@csrf_exempt
+@login_required
+@user_passes_test(es_admin)
+@require_http_methods(["POST"])
+def api_asignar_jugador(request):
+    try:
+        data = json.loads(request.body)
+        jugador_id = data.get('jugador_id')
+        equipo_id = data.get('equipo_id')
+        posicion = data.get('posicion')
+
+        if not jugador_id or not equipo_id:
+            return HttpResponseBadRequest('Faltan datos')
+
+        jugador = get_object_or_404(Jugador, id=jugador_id)
+        equipo = get_object_or_404(Equipo, id=equipo_id)
+
+        jugador.equipo = equipo
+        if posicion is not None:
+            jugador.posicion = posicion
+        jugador.save()
+
+        return JsonResponse({'status': 'jugador asignado'})
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))

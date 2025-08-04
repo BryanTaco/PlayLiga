@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const data = {
             jugador_id: document.getElementById('jugador').value,
-            equipo_id: document.getElementById('equipo-asignar').value
+            equipo_id: document.getElementById('equipo-asignar').value,
+            posicion: document.getElementById('posicion').value
         };
 
         const resp = await fetch('/torneo/api/asignar_jugador/', {
@@ -66,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (resp.ok) {
             alert("Jugador asignado");
+            // Clear the posicion field as well
+            document.getElementById('posicion').value = '';
             cargarDatos();
         }
     });
