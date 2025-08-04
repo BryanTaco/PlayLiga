@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'miproyectofutbol.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mifutbol',
+        'NAME': 'playliga',
         'USER': 'postfutbol',
         'PASSWORD': '12345',
         'HOST': 'localhost',

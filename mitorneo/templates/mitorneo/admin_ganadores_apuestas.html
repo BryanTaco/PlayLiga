@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ganadores de Apuestas - Admin Panel</title>
+    <link rel="stylesheet" href="{% static 'mitorneo/adminpanel.css' %}" />
+</head>
+<body>
+    <h1>Ganadores de Apuestas</h1>
+    <button onclick="window.location.href='{% url \"panel_admin\" %}'">Regresar</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Equipo Apostado</th>
+                <th>Monto</th>
+                <th>Fecha de Apuesta</th>
+                <th>Ganador</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for apuesta in apuestas %}
+            <tr>
+                <td>{{ apuesta.usuario.username }}</td>
+                <td>{{ apuesta.equipo.nombre }}</td>
+                <td>{{ apuesta.monto }}</td>
+                <td>{{ apuesta.fecha_apuesta }}</td>
+                <td>{% if apuesta.ganador %}Sí{% else %}No{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

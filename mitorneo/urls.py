@@ -17,5 +17,11 @@ urlpatterns = [
     path('api/partidos/', views.api_partidos, name='api_partidos'),
     path('api/agregar_equipo/', views.api_agregar_equipo, name='api_agregar_equipo'),
     path('api/crear_partido/', views.api_crear_partido, name='api_crear_partido'),
-    path('api/asignar_jugador/', views.api_asignar_jugador, name='api_asignar_jugador'),
+    path('api/asignar_jugador/', views.admin_asignar_jugador_page, name='api_asignar_jugador'),
+    path('api/bfs_graph/', views.api_bfs_graph, name='api_bfs_graph'),
+    path('apuestas/', views.apuestas_page, name='apuestas_page'),
+    path('api/apuestas/', views.api_apuestas, name='api_apuestas'),
+    path('admin/asignar_jugador/', views.admin_asignar_jugador_page, name='admin_asignar_jugador_page'),
+    path('admin/ganadores_apuestas/', views.admin_ganadores_apuestas, name='admin_ganadores_apuestas'),
+    path('admin/permutaciones_combinaciones/', views.permutaciones_combinaciones_page, name='permutaciones_combinaciones_page'),
 ]

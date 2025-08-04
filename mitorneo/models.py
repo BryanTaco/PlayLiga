@@ -1,3 +1,4 @@
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -46,6 +47,7 @@ class Jugador(models.Model):
     nivel = models.IntegerField()
     correo = models.EmailField(unique=True)
     equipo = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='jugadores')
+    posicion = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
@@ -56,5 +58,16 @@ class Partido(models.Model):
     equipo_local = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_local')
     equipo_visitante = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_visitante')
     arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True, related_name='partidos_arbitrados')
+
     def __str__(self):
         return f"{self.equipo_local} vs {self.equipo_visitante} - {self.fecha.strftime('%d/%m/%Y %H:%M')}"
+
+
+class Apuesta(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='apuestas')
+    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='apuestas')
+    monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    fecha_apuesta = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Apuesta de {self.usuario.username} en {self.equipo.nombre} por {self.monto}"

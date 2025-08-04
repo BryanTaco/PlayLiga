@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Permutaciones y Combinaciones - Estadísticas</title>
+    <link rel="stylesheet" href="{% static 'mitorneo/adminpanel.css' %}" />
+</head>
+<body>
+    <h1>Permutaciones y Combinaciones de Equipos</h1>
+    <button onclick="window.location.href='{% url 'panel_admin' %}'">Regresar</button>
+    <div>
+        <label for="equipo-select">Selecciona un equipo:</label>
+        <select id="equipo-select">
+            <option value="">--Seleccione un equipo--</option>
+            {% for equipo in equipos %}
+            <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div id="estadisticas">
+        <!-- Aquí se mostrarán las estadísticas -->
+    </div>
+
+    <script>
+        document.getElementById('equipo-select').addEventListener('change', function() {
+            var equipoId = this.value;
+            if (!equipoId) {
+                document.getElementById('estadisticas').innerHTML = '';
+                return;
+            }
+            fetch('/torneo/api/estadisticas_equipo/?equipo_id=' + equipoId)
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    var html = '<h2>Estadísticas</h2>';
+                    html += '<p>Permutaciones: ' + data.permutaciones + '</p>';
+                    html += '<p>Combinaciones: ' + data.combinaciones + '</p>';
+                    html += '<p>Victorias: ' + data.victorias + '</p>';
+                    html += '<p>Ganancias: ' + data.ganancias + '</p>';
+                    document.getElementById('estadisticas').innerHTML = html;
+                })
+                .catch(function(error) {
+                    document.getElementById('estadisticas').innerHTML = '<p>Error al cargar estadísticas.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

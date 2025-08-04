@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Apuestas - PlayLiga</title>
+    <link rel="stylesheet" href="{% static 'mitorneo/jugador_panel.css' %}" />
+</head>
+<body>
+    <h1>Apuestas Interactivas</h1>
+    <button onclick="window.history.back()">Regresar</button>
+    <div>
+        <label for="equipo-select">Selecciona un equipo para apostar:</label>
+        <select id="equipo-select">
+            <option value="">--Seleccione un equipo--</option>
+            {% for equipo in equipos %}
+            <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="monto-input">Monto a apostar:</label>
+        <input type="number" id="monto-input" min="0" step="0.01" />
+    </div>
+    <button id="apostar-btn">Apostar</button>
+
+    <h2>Tus apuestas</h2>
+    <ul id="apuestas-list"></ul>
+
+    <script src="{% static 'mitorneo/apuestas.js' %}"></script>
+</body>
+</html>

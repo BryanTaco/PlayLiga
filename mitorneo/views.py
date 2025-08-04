@@ -1,21 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from .models import Usuario, Jugador, Arbitro, Equipo, Partido
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.dateparse import parse_datetime
-import json
-from django.views.decorators.http import require_http_methods
+from .models import Usuario, Jugador, Arbitro, Equipo, Partido, Apuesta
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
-from .models import Equipo, Arbitro, Jugador, Partido
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_http_methods
 from django.utils.dateparse import parse_datetime, parse_date
-from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+import json
+from collections import deque
 
 def home(request):
     return redirect('login')
@@ -30,7 +25,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            
+
             if rol == 'admin' and user.rol == 'admin':
                 return redirect('panel_admin')
             elif rol == 'jugador' and user.rol == 'jugador':
@@ -40,8 +35,8 @@ def login_view(request):
                 except Jugador.DoesNotExist:
                     messages.error(request, 'Jugador no encontrado.')
             elif rol == 'arbitro' and user.rol == 'arbitro':
-                try:               
-                   return redirect('panel_arbitro')
+                try:
+                    return redirect('panel_arbitro')
                 except Arbitro.DoesNotExist:
                     messages.error(request, 'Árbitro no encontrado.')
             else:
@@ -51,7 +46,7 @@ def login_view(request):
             messages.error(request, 'Credenciales incorrectas.')
 
         return render(request, 'mitorneo/login.html')
-    
+
     return render(request, 'mitorneo/login.html')
 
 def registro_jugador(request):
@@ -186,6 +181,7 @@ def api_jugadores(request):
     data = list(jugadores.values('id', 'nombre', 'apellido'))
     return JsonResponse(data, safe=False)
 
+
 @login_required
 @user_passes_test(es_admin)
 def resultado_partido(request, partido_id):
@@ -278,25 +274,153 @@ def api_crear_partido(request):
         return HttpResponseBadRequest(str(e))
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import Jugador, Equipo
+import json
+from django.http import JsonResponse, HttpResponseBadRequest
+
+@login_required
+@user_passes_test(lambda u: u.is_authenticated and u.rol == 'admin')
+def admin_asignar_jugador_page(request):
+    jugadores = Jugador.objects.all()
+    equipos = Equipo.objects.all()
+    return render(request, 'mitorneo/admin_asignar_jugador.html', {
+        'jugadores': jugadores,
+        'equipos': equipos,
+    })
+
+
+@login_required
+def api_bfs_graph(request):
+    """
+    API endpoint to return BFS traversal of the tournament graph.
+    The graph nodes are teams, edges are matches between teams.
+    """
+    # Build adjacency list for teams based on matches
+    equipos = list(Equipo.objects.all())
+    partidos = Partido.objects.all()
+
+    graph = {equipo.id: set() for equipo in equipos}
+    for partido in partidos:
+        graph[partido.equipo_local.id].add(partido.equipo_visitante.id)
+        graph[partido.equipo_visitante.id].add(partido.equipo_local.id)
+
+    # BFS traversal starting from a given team (optional query param)
+    start_team_id = request.GET.get('start_team_id')
+    if start_team_id:
+        try:
+            start_team_id = int(start_team_id)
+        except ValueError:
+            return HttpResponseBadRequest("Invalid start_team_id")
+    else:
+        # Default to first team if not provided
+        if equipos:
+            start_team_id = equipos[0].id
+        else:
+            return JsonResponse({'graph': {}, 'order': []})
+
+    visited = set()
+    order = []
+    queue = deque([start_team_id])
+    visited.add(start_team_id)
+
+    while queue:
+        current = queue.popleft()
+        order.append(current)
+        for neighbor in graph[current]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    # Return BFS order and graph adjacency list
+    return JsonResponse({
+        'graph': {str(k): list(v) for k, v in graph.items()},
+        'order': order,
+    })
+
+
+@login_required
+def apuestas_page(request):
+    """
+    Render the interactive betting page.
+    """
+    equipos = Equipo.objects.all()
+    return render(request, 'mitorneo/apuestas.html', {'equipos': equipos})
+
+
 @csrf_exempt
 @login_required
-@user_passes_test(es_admin)
-@require_http_methods(["POST"])
-def api_asignar_jugador(request):
-    try:
-        data = json.loads(request.body)
-        jugador_id = data.get('jugador_id')
-        equipo_id = data.get('equipo_id')
+@require_http_methods(["GET", "POST"])
+def api_apuestas(request):
+    """
+    API endpoint to get and post bets.
+    GET: return all bets of the logged-in user.
+    POST: create a new bet.
+    """
+    if request.method == 'GET':
+        apuestas = Apuesta.objects.filter(usuario=request.user)
+        data = [{
+            'id': apuesta.id,
+            'equipo': apuesta.equipo.nombre,
+            'monto': float(apuesta.monto),
+            'fecha_apuesta': apuesta.fecha_apuesta.isoformat(),
+            'ganador': getattr(apuesta, 'ganador', False)
+        } for apuesta in apuestas]
+        return JsonResponse(data, safe=False)
 
-        if not jugador_id or not equipo_id:
-            return HttpResponseBadRequest('Faltan datos')
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            equipo_id = data.get('equipo_id')
+            monto = data.get('monto', 0)
 
-        jugador = get_object_or_404(Jugador, id=jugador_id)
-        equipo = get_object_or_404(Equipo, id=equipo_id)
+            if not equipo_id:
+                return HttpResponseBadRequest('Falta equipo_id')
 
-        jugador.equipo = equipo
-        jugador.save()
+            equipo = get_object_or_404(Equipo, id=equipo_id)
 
-        return JsonResponse({'status': 'jugador asignado'})
-    except Exception as e:
-        return HttpResponseBadRequest(str(e))
+            apuesta = Apuesta.objects.create(
+                usuario=request.user,
+                equipo=equipo,
+                monto=monto
+            )
+            return JsonResponse({
+                'id': apuesta.id,
+                'equipo': apuesta.equipo.nombre,
+                'monto': float(apuesta.monto),
+                'fecha_apuesta': apuesta.fecha_apuesta.isoformat(),
+                'ganador': False
+            })
+        except Exception as e:
+            return HttpResponseBadRequest(str(e))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_authenticated and u.rol == 'admin')
+def admin_ganadores_apuestas(request):
+    """
+    Admin page to view bet winners.
+    """
+    apuestas = Apuesta.objects.all()
+    # For demonstration, mark bets on teams that won any match as winners
+    # This logic can be improved based on actual match results
+    equipos_ganadores = set()
+    partidos = Partido.objects.all()
+    for partido in partidos:
+        # Assuming equipo_local is winner for demo
+        equipos_ganadores.add(partido.equipo_local.id)
+
+    for apuesta in apuestas:
+        apuesta.ganador = apuesta.equipo.id in equipos_ganadores
+
+    return render(request, 'mitorneo/admin_ganadores_apuestas.html', {'apuestas': apuestas})
+
+@login_required
+@user_passes_test(lambda u: u.is_authenticated and u.rol == 'admin')
+def permutaciones_combinaciones_page(request):
+    """
+    Render the permutations and combinations statistics page.
+    """
+    equipos = Equipo.objects.all()
+    return render(request, 'mitorneo/permutaciones_combinaciones.html', {'equipos': equipos})

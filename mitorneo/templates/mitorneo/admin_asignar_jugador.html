@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Asignar Jugador a Equipo - Admin Panel</title>
+    <link rel="stylesheet" href="{% static 'mitorneo/adminpanel.css' %}" />
+</head>
+<body>
+    <h1>Asignar Jugador a Equipo</h1>
+    <form id="asignar-form">
+        <label for="jugador-select">Selecciona un jugador:</label>
+        <select id="jugador-select" name="jugador_id" required>
+            <option value="">--Seleccione un jugador--</option>
+            {% for jugador in jugadores %}
+            <option value="{{ jugador.id }}">{{ jugador.nombre }} {{ jugador.apellido }}</option>
+            {% endfor %}
+        </select>
+        <br/>
+
+        <label for="equipo-select">Selecciona un equipo:</label>
+        <select id="equipo-select" name="equipo_id" required>
+            <option value="">--Seleccione un equipo--</option>
+            {% for equipo in equipos %}
+            <option value="{{ equipo.id }}">{{ equipo.nombre }}</option>
+            {% endfor %}
+        </select>
+        <br/>
+
+        <label for="posicion-input">Posición:</label>
+        <input type="text" id="posicion-input" name="posicion" placeholder="Ejemplo: Delantero" />
+        <br/>
+
+        <button type="submit">Asignar</button>
+        <button type="button" onclick="window.location.href='{% url 'panel_admin' %}'">Regresar</button>
+    </form>
+
+    <div id="mensaje"></div>
+
+    <script>
+        document.getElementById('asignar-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const jugadorId = document.getElementById('jugador-select').value;
+            const equipoId = document.getElementById('equipo-select').value;
+            const posicion = document.getElementById('posicion-input').value;
+
+            fetch('/torneo/api/asignar_jugador/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    jugador_id: jugadorId,
+                    equipo_id: equipoId,
+                    posicion: posicion
+                })
+            })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al asignar jugador');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('mensaje').textContent = 'Jugador asignado correctamente.';
+        })
+        .catch(error => {
+            document.getElementById('mensaje').textContent = error.message;
+        });
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
