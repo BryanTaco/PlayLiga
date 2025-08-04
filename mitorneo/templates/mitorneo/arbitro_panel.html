@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel del Árbitro</title>
+  <link rel="stylesheet" href="{% static 'mitorneo/adminpanel.css' %}" />
+  <script src="{% static 'mitorneo/arbitropanel.js' %}" defer></script>
+</head>
+<body>
+  <div class="admin-panel">
+    <header>
+      <h1>Panel del Árbitro</h1>
+      <button onclick="cerrarSesion()">Cerrar Sesión</button>
+    </header>
+
+    <section class="card">
+      <h2>Mi Información</h2>
+      <div class="info-personal">
+        <p><strong>Nombre:</strong> {{ arbitro.nombre }}</p>
+        <p><strong>Apellido:</strong> {{ arbitro.apellido }}</p>
+        <p><strong>Usuario:</strong> {{ arbitro.usuario.username }}</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Próximos Partidos</h2>
+      {% if partidos %}
+        <ul>
+          {% for partido in partidos %}
+            <li>
+              <strong>{{ partido.equipo_local.nombre }}</strong> vs 
+              <strong>{{ partido.equipo_visitante.nombre }}</strong> — 
+              {{ partido.fecha|date:"d/m/Y H:i" }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No tienes partidos asignados.</p>
+      {% endif %}
+    </section>
+  </div>
+</body>
+<script>
+    function cerrarSesion() {
+  window.location.href = "{% url 'logout' %}";
+}
+</script>
+</html>

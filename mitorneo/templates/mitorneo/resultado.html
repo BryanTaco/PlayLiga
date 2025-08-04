@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resultado del Partido</title>
+  <link rel="stylesheet" href="{% static 'mitorneo/resultado.css' %}" />
+  <script src="{% static 'mitorneo/calculoprobabilidad.js' %}" defer></script>
+  <style>
+    #alineaciones {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      box-shadow: 0 0 15px #00ffcc;
+    }
+    #alineaciones h3 {
+      color: #00ffcc;
+      border-bottom: 1px solid #00ffcc;
+      padding-bottom: 5px;
+    }
+    #alineaciones ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    #alineaciones li {
+      margin: 5px 0;
+      padding: 5px;
+      background-color: #111;
+      border-radius: 8px;
+    }
+    #alineaciones strong {
+      color: #00ff00;
+    }
+  </style>
+</head>
+<body>
+  <!-- Título del partido -->
+  <h1 id="titulo-partido">{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</h1>
+
+  <!-- Barras de probabilidad -->
+  <div id="probabilidades">
+    <div id="equipo1-nombre" style="margin-bottom:10px;">{{ partido.equipo_local }} (0%)</div>
+    <div id="equipo1-barra" style="background:#00ff00; width:0%; height:20px; margin-bottom:20px;"></div>
+
+    <div id="equipo2-nombre" style="margin-bottom:10px;">{{ partido.equipo_visitante }} (0%)</div>
+    <div id="equipo2-barra" style="background:#ff0000; width:0%; height:20px;"></div>
+  </div>
+
+  <!-- Botones -->
+  <button id="btn-simular">Simular Victoria</button>
+  <button id="btn-combinacion">Combinación de Alineaciones</button>
+
+  <!-- Contenedor para mostrar las alineaciones generadas -->
+  <div id="alineaciones" style="display:none;"></div>
+
+  <!-- Script -->
+  <script>
+    const nivelesLocal = JSON.parse('{{ niveles_local|safe|escapejs }}');
+    const nivelesVisitante = JSON.parse('{{ niveles_visitante|safe|escapejs }}');
+    const equipo1 = "{{ partido.equipo_local }}";
+    const equipo2 = "{{ partido.equipo_visitante }}";
+
+    let visible = false;
+
+    document.getElementById('btn-simular').addEventListener('click', () => {
+      calcularProbabilidades(nivelesLocal, nivelesVisitante, equipo1, equipo2);
+    });
+
+    document.getElementById('btn-combinacion').addEventListener('click', () => {
+      mostrarCombinacion(nivelesLocal, nivelesVisitante, equipo1, equipo2);
+    });
+
+    function mostrarCombinacion(jugadores1, jugadores2, nombre1, nombre2) {
+      const posiciones = ["Delantero", "Mediocentro", "Defensa"];
+      const getRandomPos = () => posiciones[Math.floor(Math.random() * posiciones.length)];
+
+      const generarHTML = (nombreEquipo, jugadores) => {
+        let html = `<h3>${nombreEquipo}</h3><ul>`;
+        jugadores.forEach(jugador => {
+          html += `<li>${jugador.nombre} — Alineación: <strong>${getRandomPos()}</strong></li>`;
+        });
+        html += '</ul>';
+        return html;
+      };
+
+      const div = document.getElementById('alineaciones');
+      div.innerHTML = generarHTML(nombre1, jugadores1) + generarHTML(nombre2, jugadores2);
+      div.style.display = "block";
+    }
+  </script>
+</body>
+</html>

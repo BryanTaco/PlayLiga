@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Torneo de Fútbol</title>
+    <link rel="stylesheet" href="{% static 'mitorneo/login.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Bienvenido al Torneo</h2>
+            <div class="role-selection">
+                <button class="role-btn active" data-role="admin">
+                    <i class="fas fa-user-shield"></i> Administrador
+                </button>
+                <button class="role-btn" data-role="jugador">
+                    <i class="fas fa-futbol"></i> Jugador
+                </button>
+                <button class="role-btn" data-role="arbitro">
+                    <i class="fas fa-flag"></i> Árbitro
+                </button>
+            </div>
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="hidden" id="roleInput" name="rol" value="admin">
+                
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+
+            <div class="registro" id="registroOpcional" style="display: none;">
+    <p>¿No tienes cuenta?</p>
+    <a id="registroBtn" class="registro-btn">Registrarse</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const roleButtons = document.querySelectorAll(".role-btn");
+        const roleInput = document.getElementById("roleInput");
+        const registro = document.getElementById("registroOpcional");
+        const registroBtn = document.getElementById("registroBtn");
+
+        roleButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                roleButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                const rol = btn.dataset.role;
+                roleInput.value = rol;
+
+                if (rol === "jugador") {
+                    registro.style.display = "block";
+                    registroBtn.style.display = "inline-block";
+                    registroBtn.setAttribute("href", "/torneo/registro/jugador/");
+                } else if (rol === "arbitro") {
+                    registro.style.display = "block";
+                    registroBtn.style.display = "inline-block";
+                    registroBtn.setAttribute("href", "/torneo/registro/arbitro/");
+                } else {
+                    registro.style.display = "none";
+                    registroBtn.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

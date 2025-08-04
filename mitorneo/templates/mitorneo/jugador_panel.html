@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel del Jugador</title>
+  <link rel="stylesheet" href="{% static 'mitorneo/jugador_panel.css' %}" />
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Bienvenido, {{ jugador.nombre }}</h1>
+
+    <div class="seccion">
+      <h2>Información Personal</h2>
+      <p><strong>Nombre:</strong> {{ jugador.nombre }}</p>
+      <p><strong>Apellido:</strong> {{ jugador.apellido }}</p>
+      <p><strong>Usuario:</strong> {{ jugador.usuario.username }}</p>
+      <p><strong>Correo:</strong> {{ jugador.correo }}</p>
+      <p><strong>Equipo:</strong> 
+        {% if equipo %}
+          {{ equipo.nombre }}
+        {% else %}
+          <em>No asignado</em>
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="seccion">
+      <h2>Próximos Partidos</h2>
+      {% if partidos %}
+        <ul>
+          {% for partido in partidos %}
+            <li>
+              {{ partido.fecha|date:"d/m/Y H:i" }} - 
+              {{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No hay partidos próximos.</p>
+      {% endif %}
+    </div>
+
+    <div class="seccion">
+      <button onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <script>
+    function cerrarSesion() {
+      window.location.href = "{% url 'logout' %}";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+:root {
+  --green: #27ae60;
+  --dark: #1c1c1c;
+  --light: #f4f4f4;
+  --accent: #2ecc71;
+  --red: #e74c3c;
+  --transition: all 0.3s ease;
+  --radius: 10px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: url('https://i.pinimg.com/736x/8c/f0/93/8cf093d06bb060ff91770fcec13d2e32.jpg') no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.login-container {
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 3rem;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  color: var(--light);
+  animation: fadeIn 0.8s ease-out;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--accent);
+}
+
+.role-selection {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.role-btn {
+  flex: 1;
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--light);
+  padding: 0.6rem;
+  margin: 0 0.25rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.role-btn.active, .role-btn:hover {
+  background-color: var(--accent);
+  color: black;
+  font-weight: bold;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 96%;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 1rem;
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+}
+
+.btn {
+  width: 102%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: bold;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--green);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #219150;
+}
+
+.btn-secondary {
+  background-color: var(--light);
+  color: var(--dark);
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent);
+  color: black;
+}
+
+.registro {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.role-btn i {
+  font-size: 1.2rem;
+  color: var(--accent);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.role-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.role-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.role-btn[data-role="arbitro"] i {
+  color:crimson
+}

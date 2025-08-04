@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administrador</title>
+  <link rel="stylesheet" href="{% static 'mitorneo/adminpanel.css' %}">
+  <script src="{% static 'mitorneo/adminpanel.js' %}" defer></script>
+</head>
+<body>
+  <div class="admin-panel">
+    <h1>Panel de Administración</h1>
+
+    <div class="card-container">
+
+      <!-- Sección 1: Agregar equipo -->
+      <section class="card">
+        <h2>Agregar Equipo</h2>
+        <form id="form-agregar-equipo">
+          <input type="text" id="nombre-equipo" placeholder="Nombre del equipo" required>
+          <button type="submit">Agregar</button>
+        </form>
+      </section>
+
+      <!-- Sección 2: Crear partido -->
+      <section class="card">
+        <h2>Crear Partido</h2>
+        <form id="form-crear-partido">
+          <select id="equipo-local" required>
+            <option value="">Equipo Local</option>
+          </select>
+          <select id="equipo-visitante" required>
+            <option value="">Equipo Visitante</option>
+          </select>
+          <select id="arbitro-partido" required>
+            <option value="">Seleccionar Árbitro</option>
+          </select>
+          <input type="date" id="fecha-partido" required>
+          <button type="submit">Crear Partido</button>
+        </form>
+      </section>
+
+      <!-- Sección 3: Asignar jugadores a equipo -->
+      <section class="card">
+        <h2>Asignar Jugador a Equipo</h2>
+        <form id="form-asignar-jugador">
+          <select id="jugador" required>
+            <option value="">Seleccionar Jugador</option>
+          </select>
+          <select id="equipo-asignar" required>
+            <option value="">Seleccionar Equipo</option>
+          </select>
+          <button type="submit">Asignar</button>
+        </form>
+      </section>
+
+    </div> <!-- /.card-container -->
+
+    <div class="grass-line"></div>
+
+    <!-- Sección 4: Vista de equipos y partidos -->
+    <section>
+      <h2 style="color:#00ff88; text-align:center; margin-bottom: 25px;">Equipos y sus Jugadores</h2>
+      <div id="vista-equipos" style="max-width: 1000px; margin: 0 auto;">
+        <!-- Aquí se cargan los equipos con sus jugadores -->
+      </div>
+    </section>
+
+    <div class="grass-line"></div>
+
+    <section>
+      <h2 style="color:#00ff88; text-align:center; margin-bottom: 25px;">Partidos Programados</h2>
+      <div id="vista-partidos" style="max-width: 1000px; margin: 0 auto;">
+        <!-- Aquí se cargan los partidos -->
+      </div>
+    </section>
+
+    <footer>
+      &copy; 2025 Torneo de Fútbol - Panel de Administración
+    </footer>
+  </div> <!-- /.admin-panel -->
+</body>
+</html>
