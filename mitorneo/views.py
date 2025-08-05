@@ -405,7 +405,7 @@ def api_recargar_saldo(request):
         data = json.loads(request.body)
         monto = data.get('monto')
         metodo_pago = data.get('metodo_pago')
-        datos_pago = data.get('datos_pago', '')
+        datos_pago = data.get('datos_pago', {})
 
         if monto is None or metodo_pago is None:
             return HttpResponseBadRequest('Faltan datos obligatorios')
@@ -416,6 +416,16 @@ def api_recargar_saldo(request):
 
         user = request.user
 
+        # Validar datos de pago según método
+        if metodo_pago == 'tarjeta':
+            required_fields = ['nombreTarjeta', 'numeroTarjeta', 'fechaExpiracion', 'cvv']
+            for field in required_fields:
+                if field not in datos_pago or not datos_pago[field]:
+                    return HttpResponseBadRequest(f'Falta campo {field} en datos de tarjeta')
+        elif metodo_pago == 'paypal':
+            if 'emailPaypal' not in datos_pago or not datos_pago['emailPaypal']:
+                return HttpResponseBadRequest('Falta emailPaypal en datos de PayPal')
+
         # Crear registro de recarga
         from .models import RecargaSaldo
         recarga = RecargaSaldo.objects.create(
@@ -425,8 +435,8 @@ def api_recargar_saldo(request):
             datos_pago=datos_pago
         )
 
-        # No modificar saldo directo, saldo se calcula con apuestas y recargas
-        # Para eso, sumar recargas en propiedad saldo
+        # No actualizar saldo directo porque es propiedad calculada
+        # Solo crear registro de recarga
 
         return JsonResponse({'saldo': float(user.saldo + monto)})
     except Exception as e:

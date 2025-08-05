@@ -1,15 +1,53 @@
-
 document.addEventListener("DOMContentLoaded", function () {
     const recargarSaldoBtn = document.getElementById("recargar-saldo-btn");
     if (recargarSaldoBtn) {
         recargarSaldoBtn.addEventListener("click", function(event) {
             event.preventDefault();
-            alert("Botón de recarga clickeado"); // Para verificar si se ejecuta el evento
             const modal = document.getElementById("modal-recarga");
             if (modal) {
                 modal.style.display = "block";
+                crearCamposPago();
             }
         });
+    }
+
+    function crearCamposPago() {
+        const modalContent = document.querySelector("#modal-recarga .modal-content");
+        let camposPagoDiv = document.getElementById("campos-pago");
+        if (!camposPagoDiv) {
+            camposPagoDiv = document.createElement("div");
+            camposPagoDiv.id = "campos-pago";
+            camposPagoDiv.style.marginBottom = "1rem";
+            modalContent.insertBefore(camposPagoDiv, document.getElementById("btn-confirmar-recarga"));
+        }
+
+        const metodoPagoSelect = document.getElementById("metodo-pago");
+        if (metodoPagoSelect) {
+            metodoPagoSelect.addEventListener("change", mostrarCamposPago);
+            mostrarCamposPago();
+        }
+
+        function mostrarCamposPago() {
+            const metodo = metodoPagoSelect.value;
+            camposPagoDiv.innerHTML = "";
+            if (metodo === "tarjeta") {
+                camposPagoDiv.innerHTML = `
+                    <label for="nombre-tarjeta">Nombre en la Tarjeta:</label>
+                    <input type="text" id="nombre-tarjeta" placeholder="Nombre completo" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: none; margin-bottom: 0.5rem;" />
+                    <label for="numero-tarjeta">Número de Tarjeta:</label>
+                    <input type="text" id="numero-tarjeta" placeholder="1234 5678 9012 3456" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: none; margin-bottom: 0.5rem;" />
+                    <label for="fecha-expiracion">Fecha de Expiración:</label>
+                    <input type="month" id="fecha-expiracion" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: none; margin-bottom: 0.5rem;" />
+                    <label for="cvv">CVV:</label>
+                    <input type="text" id="cvv" placeholder="123" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: none;" />
+                `;
+            } else if (metodo === "paypal") {
+                camposPagoDiv.innerHTML = `
+                    <label for="email-paypal">Email PayPal:</label>
+                    <input type="email" id="email-paypal" placeholder="usuario@paypal.com" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: none;" />
+                `;
+            }
+        }
     }
 
     // Cerrar modal
@@ -31,7 +69,27 @@ document.addEventListener("DOMContentLoaded", function () {
             const metodoPagoSelect = document.getElementById("metodo-pago");
             const monto = parseFloat(montoInput.value);
             const metodo_pago = metodoPagoSelect.value;
-            const datos_pago = ""; // Aquí se pueden agregar más datos si se amplía el formulario
+
+            // Recopilar datos de pago según método
+            let datos_pago = {};
+            if (metodo_pago === "tarjeta") {
+                const nombreTarjeta = document.getElementById("nombre-tarjeta").value.trim();
+                const numeroTarjeta = document.getElementById("numero-tarjeta").value.trim();
+                const fechaExpiracion = document.getElementById("fecha-expiracion").value.trim();
+                const cvv = document.getElementById("cvv").value.trim();
+                if (!nombreTarjeta || !numeroTarjeta || !fechaExpiracion || !cvv) {
+                    alert("Por favor, complete todos los campos de la tarjeta.");
+                    return;
+                }
+                datos_pago = { nombreTarjeta, numeroTarjeta, fechaExpiracion, cvv };
+            } else if (metodo_pago === "paypal") {
+                const emailPaypal = document.getElementById("email-paypal").value.trim();
+                if (!emailPaypal) {
+                    alert("Por favor, ingrese el email de PayPal.");
+                    return;
+                }
+                datos_pago = { emailPaypal };
+            }
 
             if (isNaN(monto) || monto <= 0) {
                 alert("Cantidad inválida.");
@@ -48,13 +106,14 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("Error al recargar saldo.");
+                    return response.text().then(text => { throw new Error(text || "Error al recargar saldo."); });
                 }
                 return response.json();
             })
             .then(data => {
                 alert("Saldo recargado correctamente.");
-                actualizarSaldo();
+                console.log("Saldo recibido tras recarga:", data.saldo);
+                actualizarSaldoVisual(data.saldo);
                 const modal = document.getElementById("modal-recarga");
                 if (modal) {
                     modal.style.display = "none";
@@ -66,6 +125,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 alert(error.message);
             });
+
+    function actualizarSaldoVisual(nuevoSaldo) {
+        const saldoUsuario = document.getElementById("saldo-usuario");
+        if (saldoUsuario) {
+            saldoUsuario.textContent = nuevoSaldo.toFixed(2);
+        }
+    }
         });
     }
 
