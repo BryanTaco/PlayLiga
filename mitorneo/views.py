@@ -11,9 +11,16 @@ from django.utils import timezone
 from django.db.models import Q
 import json
 from collections import deque
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie, get_token
 
 def home(request):
     return redirect('login')
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    token = get_token(request)
+    return JsonResponse({'csrfToken': token})
 
 def login_view(request):
     next_url = request.GET.get('next', '')
@@ -271,6 +278,8 @@ def api_agregar_equipo(request):
         equipo = Equipo.objects.create(nombre=nombre)
         return JsonResponse({'id': equipo.id, 'nombre': equipo.nombre})
     except Exception as e:
+        with open('error_apuestas.log', 'a') as f:
+            f.write(str(e) + '\\n')
         return HttpResponseBadRequest(str(e))
 
 
@@ -435,10 +444,11 @@ def api_recargar_saldo(request):
             datos_pago=datos_pago
         )
 
-        # No actualizar saldo directo porque es propiedad calculada
-        # Solo crear registro de recarga
+        # Actualizar saldo_real del usuario
+        user.saldo_real += monto
+        user.save()
 
-        return JsonResponse({'saldo': float(user.saldo + monto)})
+        return JsonResponse({'saldo': float(user.saldo)})
     except Exception as e:
         return HttpResponseBadRequest(str(e))
 
@@ -473,6 +483,12 @@ def api_apuestas(request):
                 return HttpResponseBadRequest('Falta equipo_id')
 
             equipo = get_object_or_404(Equipo, id=equipo_id)
+
+            # Validar saldo suficiente
+            if monto <= 0:
+                return HttpResponseBadRequest('Monto inválido')
+            if monto > request.user.saldo:
+                return HttpResponseBadRequest('Saldo insuficiente para realizar la apuesta')
 
             apuesta = Apuesta.objects.create(
                 usuario=request.user,

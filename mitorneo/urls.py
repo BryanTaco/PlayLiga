@@ -23,6 +23,7 @@ urlpatterns = [
     path('apuestas/', views.apuestas_page, name='apuestas_page'),
     path('api/apuestas/', views.api_apuestas, name='api_apuestas'),
     path('api/recargar_saldo/', views.api_recargar_saldo, name='api_recargar_saldo'),
+    path('api/saldo/', views.api_saldo, name='api_saldo'),
     path('admin/asignar_jugador/', views.admin_asignar_jugador_page, name='admin_asignar_jugador_page'),
     path('admin/ganadores_apuestas/', views.admin_ganadores_apuestas, name='admin_ganadores_apuestas'),
     path('admin/permutaciones_combinaciones/', views.permutaciones_combinaciones_page, name='permutaciones_combinaciones_page'),

@@ -68,14 +68,31 @@
                     const roleInput = document.getElementById("roleInput");
                     const registro = document.getElementById("registroOpcional");
                     const registroBtn = document.getElementById("registroBtn");
+                    const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+
+                    async function fetchNewCsrfToken() {
+                        try {
+                            const response = await fetch('/torneo/get_csrf_token/');
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (csrfTokenInput) {
+                                    csrfTokenInput.value = data.csrfToken;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error fetching CSRF token:', error);
+                        }
+                    }
 
                     roleButtons.forEach(btn => {
-                        btn.addEventListener("click", () => {
+                        btn.addEventListener("click", async () => {
                             roleButtons.forEach(b => b.classList.remove("active"));
                             btn.classList.add("active");
 
                             const rol = btn.dataset.role;
                             roleInput.value = rol;
+
+                            await fetchNewCsrfToken();
 
                             if (rol === "jugador") {
                                 registro.style.display = "block";

@@ -13,6 +13,7 @@ USER_ROLES = (
 # Usuario personalizado
 class Usuario(AbstractUser):
     rol = models.CharField(max_length=10, choices=USER_ROLES)
+    saldo_real = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def es_admin(self):
         return self.rol == 'admin'
@@ -25,10 +26,11 @@ class Usuario(AbstractUser):
 
     @property
     def saldo(self):
+        # Saldo total = saldo_real + ganancias de apuestas - gastos de apuestas
         apuestas = self.apuestas.all()
         ganancias = sum([apuesta.monto for apuesta in apuestas if apuesta.ganador])
         gastos = sum([apuesta.monto for apuesta in apuestas])
-        return ganancias - gastos
+        return self.saldo_real + ganancias - gastos
 
 
 class Equipo(models.Model):
