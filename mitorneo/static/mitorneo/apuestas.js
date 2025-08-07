@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Función para cargar las apuestas del usuario
     function cargarApuestas() {
-        fetch("/api/apuestas/")
+        fetch("/torneo/api/apuestas/")
             .then(response => response.json())
             .then(data => {
                 apuestasList.innerHTML = "";
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         // Llamar API para obtener estadísticas reales
-        fetch(`/api/estadisticas_equipo/?equipo_id=${equipoId}`)
+        fetch(`/torneo/api/estadisticas_equipo/?equipo_id=${equipoId}`)
             .then(response => response.json())
             .then(data => {
                 // Ejemplo: usar victorias y partidos para calcular probabilidad simple
@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        fetch("/api/apuestas/", {
+        fetch("/torneo/api/apuestas/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -301,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Función para actualizar saldo mostrado
     function actualizarSaldo() {
-        fetch("/api/saldo/")
+        fetch("/torneo/api/saldo/")
             .then(response => response.json())
             .then(data => {
                 saldoUsuario.textContent = data.saldo.toFixed(2);

@@ -5,24 +5,33 @@
     <meta charset="UTF-8">
     <title>Login | Torneo de Fútbol</title>
     <link rel="stylesheet" href="{% static 'mitorneo/login.css' %}">
+    <link rel="stylesheet" href="{% static 'mitorneo/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-box" style="width: 420px;">
-            <h2>Bienvenido al Torneo</h2>
-            <div class="role-selection" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-                <button class="role-btn active" data-role="admin" style="width: 100%;">
-                    <i class="fas fa-user-shield"></i> Administrador
+<body style="background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover !important; background-size: cover !important; background-attachment: fixed !important; background-color: #121212;">
+    <div class="login-container" style="max-width: 480px; margin: auto; box-sizing: border-box;">
+        <div class="login-box" style="padding: 2rem; box-sizing: border-box;">
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <img src="{% static 'mitorneo/imagenes/Logo PlayLiga.png' %}" alt="Logo PlayLiga" style="max-width: 180px; height: auto; margin: 0 auto; display: block;"/>
+            </div>
+            <p style="text-align: center; margin-bottom: 2rem; color: #ccc;">Sistema de Gestión de Torneos</p>
+            
+            <div class="role-selection" style="padding: 0 1rem; box-sizing: border-box;">
+                <button class="role-btn active" data-role="admin">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin</span>
                 </button>
-                <button class="role-btn" data-role="jugador" style="width: 100%;">
-                    <i class="fas fa-futbol"></i> Jugador
+                <button class="role-btn" data-role="jugador">
+                    <i class="fas fa-futbol"></i>
+                    <span>Jugador</span>
                 </button>
-                <button class="role-btn" data-role="arbitro" style="width: 100%;">
-                    <i class="fas fa-flag"></i> Árbitro
+                <button class="role-btn" data-role="arbitro">
+                    <i class="fas fa-whistle"></i>
+                    <span>Árbitro</span>
                 </button>
-                <button class="role-btn" data-role="apostador" style="width: 100%;">
-                    <i class="fas fa-coins"></i> Apostador
+                <button class="role-btn" data-role="apostador">
+                    <i class="fas fa-coins"></i>
+                    <span>Apostador</span>
                 </button>
             </div>
 

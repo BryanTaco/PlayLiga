@@ -1,18 +1,17 @@
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-# Roles de usuario
-USER_ROLES = (
+# Roles de usuario con mejor estructura
+USER_ROLES = [
     ('admin', 'Administrador'),
     ('arbitro', 'Árbitro'),
     ('jugador', 'Jugador'),
     ('apostador', 'Apostador'),
-)
+]
 
-# Usuario personalizado
+# Usuario personalizado con rol mejorado
 class Usuario(AbstractUser):
-    rol = models.CharField(max_length=10, choices=USER_ROLES)
+    rol = models.CharField(max_length=20, choices=USER_ROLES, default='apostador')
     saldo_real = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def es_admin(self):
@@ -23,6 +22,9 @@ class Usuario(AbstractUser):
 
     def es_jugador(self):
         return self.rol == 'jugador'
+
+    def es_apostador(self):
+        return self.rol == 'apostador'
 
     @property
     def saldo(self):
@@ -64,7 +66,7 @@ class Jugador(models.Model):
 
 
 class Partido(models.Model):
-    fecha = models.DateTimeField()
+    fecha = models.DateTimeField()  # Ya incluye fecha y hora
     equipo_local = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_local')
     equipo_visitante = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_visitante')
     arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True, related_name='partidos_arbitrados')
@@ -83,12 +85,29 @@ class Apuesta(models.Model):
     def __str__(self):
         return f"Apuesta de {self.usuario.username} en {self.equipo.nombre} por {self.monto}"
 
+    class Meta:
+        verbose_name = "Apuesta"
+        verbose_name_plural = "Apuestas"
+
+
 class RecargaSaldo(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='recargas')
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     metodo_pago = models.CharField(max_length=50)
-    datos_pago = models.TextField(blank=True, null=True)  # JSON o texto con detalles
+    datos_pago = models.TextField(blank=True, null=True)
     fecha_recarga = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Recarga de {self.monto} por {self.usuario.username} via {self.metodo_pago}"
+
+
+# Modelo de auditoría para roles
+class AuditoriaRol(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    rol_anterior = models.CharField(max_length=20, choices=USER_ROLES)
+    rol_nuevo = models.CharField(max_length=20, choices=USER_ROLES)
+    fecha_cambio = models.DateTimeField(auto_now_add=True)
+    cambiado_por = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='auditorias_realizadas')
+
+    def __str__(self):
+        return f"{self.usuario.username}: {self.rol_anterior} → {self.rol_nuevo} por {self.cambiado_por.username}"
