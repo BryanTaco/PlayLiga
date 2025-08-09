@@ -1,4 +1,5 @@
-,/* Nuevo esquema de colores profesional */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
   --primary-color: #1a237e;
   --secondary-color: #3f51b5;
@@ -10,132 +11,7 @@
   --success-color: #4caf50;
   --error-color: #f44336;
   --border-radius: 12px;
-  --transition: all 0.3s ease;
-}
-
-/* Centrar el login y mejorar la interfaz */
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: transparent;
-}
-
-.login-box {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 400px;
-  color: white;
-}
-
-.login-box h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: var(--accent-color);
-  font-weight: 700;
-  font-size: 1.8rem;
-}
-
-.role-selection {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0 0.5rem;
-  flex-wrap: wrap;
-}
-
-.login-box img {
-  max-width: 260px;
-  height: auto;
-  margin-bottom: 1.5rem;
-}
-
-.login-box p {
-  color: #ddd;
-  text-align: center;
-  font-size: 1rem;
-  text-shadow: 0 0 5px rgba(0,0,0,0.7);
-  margin-bottom: 2rem;
-}
-
-.role-btn {
-  flex: 1;
-  max-width: 180px;
-  background: transparent;
-  border: 2px solid var(--accent-color);
-  color: var(--text-light);
-  padding: 0.8rem 1rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: var(--transition);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  overflow: hidden;
-}
-
-.role-btn i {
-  font-size: 1.3rem;
-  color: #fff !important;
-  transition: transform 0.3s ease;
-}
-
-.role-btn[data-role="admin"] i {
-  color: #ffeb3b !important;
-}
-
-.role-btn[data-role="jugador"] i {
-  color: #4caf50 !important;
-}
-
-.role-btn[data-role="arbitro"] i {
-  color: #2196f3 !important;
-}
-
-.role-btn[data-role="apostador"] i {
-  color: #000000 !important;
-}
-
-.role-btn {
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
-  50% {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 20px rgba(0,0,0,0.4);
-  }
-}
-
-.role-btn[data-role="admin"] i {
-  color: #ffeb3b !important;
-}
-
-.role-btn[data-role="jugador"] i {
-  color: #4caf50 !important;
-}
-
-.role-btn[data-role="arbitro"] i {
-  color: #2196f3 !important;
-}
-
-.role-btn[data-role="apostador"] i {
-  color: #ff9800 !important;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
@@ -150,632 +26,8 @@ body {
   padding: 0;
   filter: none !important;
   background-color: #121212;
-}
-
-.login-box img {
-  max-width: 300px;
-  height: auto;
-  margin-bottom: 1.5rem;
-}
-
-.role-btn:hover i {
-  transform: scale(1.2) rotate(10deg);
-}
-
-.role-btn.active, .role-btn:hover {
-  background-color: var(--accent-color);
-  color: var(--background-dark);
-  font-weight: 700;
-  box-shadow: 0 6px 15px var(--accent-color);
-}
-
-.login-box {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: none;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 400px;
-  color: black;
-}
-
-body {
-  background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/contain !important;
-  background-size: contain !important;
-  background-attachment: fixed !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  min-height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  filter: none !important;
-  background-color: #121212;
-}
-
-.login-box img {
-  max-width: 280px;
-  height: auto;
-  margin-bottom: 1.5rem;
-}
-
-.login-box {
-  backdrop-filter: none !important;
-}
-
-.role-btn {
-  flex: 1;
-  max-width: none !important;
-  min-width: 140px;
-  background: transparent;
-  border: 2px solid var(--accent-color);
-  color: var(--text-light);
-  padding: 0.8rem 1.2rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: var(--transition);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  overflow: visible !important;
-}
-
-.role-selection {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.role-btn {
-  flex: 1;
-  background: transparent;
-  border: 2px solid var(--accent-color);
-  color: var(--text-light);
-  padding: 0.6rem;
-  margin: 0 0.25rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: var(--transition);
-}
-
-.role-btn.active, .role-btn:hover {
-  background-color: var(--accent-color);
-  color: black;
-  font-weight: bold;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: var(--border-radius);
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  font-size: 1rem;
-  outline: none;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
-}
-
-.btn {
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-weight: bold;
-  transition: var(--transition);
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: var(--secondary-color);
-}
-
-.btn-secondary {
-  background-color: var(--light);
-  color: var(--dark);
-  margin-top: 1rem;
-}
-
-.btn-secondary:hover {
-  background-color: var(--accent-color);
-  color: black;
-}
-
-.registro {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.registro-btn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  width: 100%;
-}
-
-.registro-btn:hover {
-  background-color: var(--secondary-color);
-}
-
-.registro-btn i {
-  font-size: 1.2rem;
-  color: var(--accent-color);
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.registro-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.registro-btn[data-role="arbitro"] i {
-  color: crimson;
-}
-
-.registro-btn[data-role="apostador"] i {
-  color: #ff9800;
-}
-
-.registro-btn[data-role="admin"] i {
-  color:<<<<<<< SEARCH
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
-
-:root {
-  --green: #27ae60;
-  --dark: #1c1c1c;
-  --light: #f4f4f4;
-  --accent: #2ecc71;
-  --red: #e74c3c;
-  --transition: all 0.3s ease;
-  --radius: 10px;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Orbitron', sans-serif;
-  background: url('PlayLiga/mitorneo/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.login-container {
-  background-color: rgba(0, 0, 0, 0.85);
-  padding: 3rem;
-  border-radius: var(--radius);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-  width: 100%;
-  max-width: 480px;
-  color: var(--light);
-  animation: fadeIn 0.8s ease-out;
-}
-
-.login-box h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: var(--accent);
-}
-
-.role-selection {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.role-btn {
-  flex: 1;
-  background: transparent;
-  border: 2px solid var(--accent);
-  color: var(--light);
-  padding: 0.6rem;
-  margin: 0 0.25rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: var(--transition);
-}
-
-.role-btn.active, .role-btn:hover {
-  background-color: var(--accent);
-  color: black;
-  font-weight: bold;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-control {
-  width: 96%;
-  padding: 0.75rem;
-  border-radius: var(--radius);
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  font-size: 1rem;
-  outline: none;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
-}
-
-.btn {
-  width: 102%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 1rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-weight: bold;
-  transition: var(--transition);
-}
-
-.btn-primary {
-  background-color: var(--green);
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #219150;
-}
-
-.btn-secondary {
-  background-color: var(--light);
-  color: var(--dark);
-  margin-top: 1rem;
-}
-
-.btn-secondary:hover {
-  background-color: var(--accent);
-  color: black;
-}
-
-.registro {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.role-btn i {
-  font-size: 1.2rem;
-  color: var(--accent);
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.role-btn[data-role="admin"] i {
-  color: #ff4500;
-}
-
-.role-btn[data-role="jugador"] i {
-  color: #1e90ff;
-}
-
-.role-btn[data-role="arbitro"] i {
-  color:crimson
-}
-=======
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
-
-:root {
-  --primary-color: #1a237e;
-  --secondary-color: #3f51b5;
-  --accent-color: #ff9800;
-  --background-dark: #121212;
-  --background-light: #f5f5f5;
-  --text-light: #ffffff;
-  --text-dark: #333333;
-  --success-color: #4caf50;
-  --error-color: #f44336;
-  --border-radius: 12px;
-  --transition: all 0.3s ease;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Orbitron', sans-serif;
-  background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover !important;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-weight: 400;
 }
 
 body::before {
@@ -791,172 +43,290 @@ body::before {
 }
 
 .login-container {
-  background-color: transparent;
-  padding: 3rem;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
-  width: 100%;
-  max-width: 480px;
-  color: var(--text-light);
-  animation: fadeIn 0.8s ease-out;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  box-sizing: border-box;
+  min-height: 100vh;
+  background: transparent;
+  padding: 1rem;
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 420px;
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+  font-weight: 800;
+  font-size: 2.2rem;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.login-box img {
+  display: block;
+  margin: 0 auto 0.8rem auto;
+  max-width: 200px;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.login-box p {
+  color: #e0e0e0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.01em;
 }
 
 .role-selection {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-bottom: 1.8rem;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 1rem;
 }
 
 .role-btn {
-  flex: 1;
-  max-width: 120px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
   border: 2px solid var(--accent-color);
   color: var(--text-light);
-  padding: 0.6rem 0.8rem;
+  padding: 0.9rem 1rem;
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   transition: var(--transition);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  position: relative;
   overflow: hidden;
 }
 
+.role-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.role-btn:hover::before {
+  left: 100%;
+}
+
 .role-btn i {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: var(--accent-color);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .role-btn:hover i {
-  transform: scale(1.2) rotate(10deg);
+  transform: scale(1.15) rotate(5deg);
 }
 
 .role-btn.active, .role-btn:hover {
-  background-color: var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color), #e68900);
   color: var(--background-dark);
   font-weight: 700;
-  box-shadow: 0 6px 15px var(--accent-color);
+  box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
+  transform: translateY(-2px);
+  border-color: transparent;
 }
 
-.login-box h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: var(--accent-color);
-  font-weight: 700;
-  font-size: 2rem;
-}
-
-.login-box img {
-  display: block;
-  margin: 0 auto 1rem auto;
-  max-width: 220px;
-  height: auto;
-}
-
-.role-selection {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
-}
-
-.role-btn {
-  flex: 1;
-  background: transparent;
-  border: 2px solid var(--accent-color);
-  color: var(--text-light);
-  padding: 0.6rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: var(--transition);
-  max-width: 150px;
-}
-
-.role-btn.active, .role-btn:hover {
-  background-color: var(--accent-color);
+.role-btn.active i, .role-btn:hover i {
   color: var(--background-dark);
-  font-weight: bold;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   width: 100%;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: var(--border-radius);
-  border: none;
-  background: var(--background-light);
-  color: var(--text-dark);
-  font-size: 1rem;
-  outline: none;
 }
 
 label {
   display: block;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: var(--border-radius);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+  background: rgba(255, 255, 255, 1);
 }
 
 .btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 1rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
   text-transform: uppercase;
   cursor: pointer;
-  font-weight: bold;
   transition: var(--transition);
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: var(--text-light);
+  box-shadow: 0 6px 16px rgba(26, 35, 126, 0.3);
 }
 
 .btn-primary:hover {
-  background-color: var(--secondary-color);
+  background: linear-gradient(135deg, var(--secondary-color), #5c6bc0);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 35, 126, 0.4);
 }
 
 .btn-secondary {
-  background-color: var(--background-light);
+  background: linear-gradient(135deg, var(--background-light), #e0e0e0);
   color: var(--background-dark);
   margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover {
-  background-color: var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color), #e68900);
   color: var(--background-dark);
+  transform: translateY(-2px);
 }
 
 .registro {
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
-@keyframes fadeIn {
+.registro p {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+}
+
+.registro-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--text-light);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  display: inline-block;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(26, 35, 126, 0.3);
+}
+
+.registro-btn:hover {
+  background: linear-gradient(135deg, var(--secondary-color), #5c6bc0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(26, 35, 126, 0.4);
+}
+
+.messages {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .login-box h2 {
+    font-size: 1.8rem;
+  }
+  
+  .role-selection {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  
+  .role-btn {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* Animation for smooth entrance */
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
@@ -967,21 +337,15 @@ label {
   }
 }
 
-.role-btn i {
-  font-size: 1.2rem;
-  color: var(--accent-color);
-  display: inline-block;
-  vertical-align: middle;
+.login-box {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.role-btn[data-role="admin"] i {
-  color: #ff9800;
+/* Micro-interactions */
+.role-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
-.role-btn[data-role="jugador"] i {
-  color: #3f51b5;
-}
-
-.role-btn[data-role="arbitro"] i {
-  color: #f44336;
+.btn:active {
+  transform: translateY(0) scale(0.98);
 }
