@@ -1,33 +1,781 @@
-/* Variables CSS */
+,/* Nuevo esquema de colores profesional */
 :root {
-    --primary-color: #1a237e;
-    --secondary-color: #3f51b5;
-    --accent-color: #ff9800;
-    --background-dark: #121212;
-    --background-light: #f5f5f5;
-    --text-light: #ffffff;
-    --text-dark: #333333;
-    --success-color: #4caf50;
-    --error-color: #f44336;
-    --border-radius: 12px;
-    --transition: all 0.3s ease;
+  --primary-color: #1a237e;
+  --secondary-color: #3f51b5;
+  --accent-color: #ff9800;
+  --background-dark: #121212;
+  --background-light: #f5f5f5;
+  --text-light: #ffffff;
+  --text-dark: #333333;
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
 }
 
-/* Configuración del body */
+/* Centrar el login y mejorar la interfaz */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  color: white;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.role-selection {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+  flex-wrap: wrap;
+}
+
+.login-box img {
+  max-width: 260px;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.login-box p {
+  color: #ddd;
+  text-align: center;
+  font-size: 1rem;
+  text-shadow: 0 0 5px rgba(0,0,0,0.7);
+  margin-bottom: 2rem;
+}
+
+.role-btn {
+  flex: 1;
+  max-width: 180px;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--text-light);
+  padding: 0.8rem 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.role-btn i {
+  font-size: 1.3rem;
+  color: #fff !important;
+  transition: transform 0.3s ease;
+}
+
+.role-btn[data-role="admin"] i {
+  color: #ffeb3b !important;
+}
+
+.role-btn[data-role="jugador"] i {
+  color: #4caf50 !important;
+}
+
+.role-btn[data-role="arbitro"] i {
+  color: #2196f3 !important;
+}
+
+.role-btn[data-role="apostador"] i {
+  color: #000000 !important;
+}
+
+.role-btn {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  50% {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+  }
+}
+
+.role-btn[data-role="admin"] i {
+  color: #ffeb3b !important;
+}
+
+.role-btn[data-role="jugador"] i {
+  color: #4caf50 !important;
+}
+
+.role-btn[data-role="arbitro"] i {
+  color: #2196f3 !important;
+}
+
+.role-btn[data-role="apostador"] i {
+  color: #ff9800 !important;
+}
+
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Exo 2', sans-serif;
-    background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover !important;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-attachment: fixed !important;
-    position: relative;
-    background-size: cover !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
+  background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  filter: none !important;
+  background-color: #121212;
+}
+
+.login-box img {
+  max-width: 300px;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.role-btn:hover i {
+  transform: scale(1.2) rotate(10deg);
+}
+
+.role-btn.active, .role-btn:hover {
+  background-color: var(--accent-color);
+  color: var(--background-dark);
+  font-weight: 700;
+  box-shadow: 0 6px 15px var(--accent-color);
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: none;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  color: black;
+}
+
+body {
+  background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/contain !important;
+  background-size: contain !important;
+  background-attachment: fixed !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  filter: none !important;
+  background-color: #121212;
+}
+
+.login-box img {
+  max-width: 280px;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.login-box {
+  backdrop-filter: none !important;
+}
+
+.role-btn {
+  flex: 1;
+  max-width: none !important;
+  min-width: 140px;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--text-light);
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  overflow: visible !important;
+}
+
+.role-selection {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.role-btn {
+  flex: 1;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--text-light);
+  padding: 0.6rem;
+  margin: 0 0.25rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.role-btn.active, .role-btn:hover {
+  background-color: var(--accent-color);
+  color: black;
+  font-weight: bold;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 1rem;
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: bold;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+}
+
+.btn-secondary {
+  background-color: var(--light);
+  color: var(--dark);
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent-color);
+  color: black;
+}
+
+.registro {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.registro-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  width: 100%;
+}
+
+.registro-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.registro-btn i {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.registro-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.registro-btn[data-role="arbitro"] i {
+  color: crimson;
+}
+
+.registro-btn[data-role="apostador"] i {
+  color: #ff9800;
+}
+
+.registro-btn[data-role="admin"] i {
+  color:<<<<<<< SEARCH
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+:root {
+  --green: #27ae60;
+  --dark: #1c1c1c;
+  --light: #f4f4f4;
+  --accent: #2ecc71;
+  --red: #e74c3c;
+  --transition: all 0.3s ease;
+  --radius: 10px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: url('PlayLiga/mitorneo/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.login-container {
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 3rem;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 480px;
+  color: var(--light);
+  animation: fadeIn 0.8s ease-out;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--accent);
+}
+
+.role-selection {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.role-btn {
+  flex: 1;
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--light);
+  padding: 0.6rem;
+  margin: 0 0.25rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.role-btn.active, .role-btn:hover {
+  background-color: var(--accent);
+  color: black;
+  font-weight: bold;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 96%;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 1rem;
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+}
+
+.btn {
+  width: 102%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: bold;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--green);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #219150;
+}
+
+.btn-secondary {
+  background-color: var(--light);
+  color: var(--dark);
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent);
+  color: black;
+}
+
+.registro {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.role-btn i {
+  font-size: 1.2rem;
+  color: var(--accent);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.role-btn[data-role="admin"] i {
+  color: #ff4500;
+}
+
+.role-btn[data-role="jugador"] i {
+  color: #1e90ff;
+}
+
+.role-btn[data-role="arbitro"] i {
+  color:crimson
+}
+=======
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+:root {
+  --primary-color: #1a237e;
+  --secondary-color: #3f51b5;
+  --accent-color: #ff9800;
+  --background-dark: #121212;
+  --background-light: #f5f5f5;
+  --text-light: #ffffff;
+  --text-dark: #333333;
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
 }
 
 body::before {
@@ -43,28 +791,18 @@ body::before {
 
 /* Contenedor principal del login */
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: transparent;
-}
-
-.login-box {
-    background: rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 2.5rem 2rem;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    width: 100%;
-    max-width: 480px;
-    color: var(--text-light);
-    animation: fadeIn 0.8s ease-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
+  background-color: transparent;
+  padding: 3rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+  width: 100%;
+  max-width: 480px;
+  color: var(--text-light);
+  animation: fadeIn 0.8s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 /* Logo */
@@ -112,310 +850,198 @@ body::before {
 
 /* Selección de roles */
 .role-selection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
-    width: 100%;
-    padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 1rem;
 }
 
 .role-btn {
-    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05));
-    border: 2px solid rgba(255, 152, 0, 0.6);
-    color: var(--text-light);
-    padding: 1rem 0.8rem;
-    border-radius: 15px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  flex: 1;
+  max-width: 120px;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--text-light);
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  overflow: hidden;
 }
 
 .role-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
 }
 
 .role-btn:hover::before {
-    left: 100%;
-}
-
-.role-btn:hover {
-    background: linear-gradient(135deg, var(--accent-color), #e68900);
-    color: var(--background-dark);
-    border-color: var(--accent-color);
-    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
-    transform: translateY(-2px);
-}
-
-.role-btn.active {
-    background: linear-gradient(135deg, var(--accent-color), #e68900);
-    color: var(--background-dark);
-    border-color: var(--accent-color);
-    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
-    transform: translateY(-2px);
+  left: 100%;
 }
 
 .role-btn i {
-    font-size: 1.4rem;
-    transition: transform 0.3s ease;
+  font-size: 1.3rem;
+  color: var(--accent-color);
+  transition: transform 0.3s ease;
 }
 
-.role-btn:hover i,
-.role-btn.active i {
-    transform: scale(1.1) rotate(5deg);
+.role-btn:hover i {
+  transform: scale(1.2) rotate(10deg);
 }
 
-/* Colores específicos de iconos por rol */
-.role-btn[data-role="admin"] i {
-    color: #ffeb3b;
+.role-btn.active, .role-btn:hover {
+  background-color: var(--accent-color);
+  color: var(--background-dark);
+  font-weight: 700;
+  box-shadow: 0 6px 15px var(--accent-color);
 }
 
-.role-btn[data-role="jugador"] i {
-    color: #4caf50;
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 2rem;
 }
 
-.role-btn[data-role="arbitro"] i {
-    color: #2196f3;
+.login-box img {
+  display: block;
+  margin: 0 auto 1rem auto;
+  max-width: 220px;
+  height: auto;
 }
 
-.role-btn[data-role="apostador"] i {
-    color: #ff9800;
+.role-selection {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
-/* Formulario */
-.login-form {
-    width: 100%;
+.role-btn {
+  flex: 1;
+  background: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--text-light);
+  padding: 0.6rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+  max-width: 150px;
+}
+
+.role-btn.active, .role-btn:hover {
+  background-color: var(--accent-color);
+  color: var(--background-dark);
+  font-weight: bold;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
-    width: 100%;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-family: 'Orbitron', monospace;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--accent-color);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+  width: 100%;
 }
 
 .form-control {
-    width: 100%;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 2px solid rgba(255, 152, 0, 0.3);
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    color: var(--text-light);
-    font-size: 1rem;
-    font-family: 'Exo 2', sans-serif;
-    outline: none;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  border: none;
+  background: var(--background-light);
+  color: var(--text-dark);
+  font-size: 1rem;
+  outline: none;
 }
 
-.form-control:focus {
-    border-color: var(--accent-color);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
-}
-
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
 }
 
 /* Botones */
 .btn {
-    width: 100%;
-    padding: 1rem;
-    border: none;
-    border-radius: 12px;
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: bold;
+  transition: var(--transition);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: var(--text-light);
-    border: 2px solid transparent;
-}
-
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.btn-primary:hover::before {
-    left: 100%;
+  background-color: var(--primary-color);
+  color: var(--text-light);
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-    box-shadow: 0 8px 25px rgba(26, 35, 126, 0.4);
-    transform: translateY(-2px);
+  background-color: var(--secondary-color);
 }
 
-/* Sección de registro */
+.btn-secondary {
+  background-color: var(--background-light);
+  color: var(--background-dark);
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent-color);
+  color: var(--background-dark);
+}
+
 .registro {
-    text-align: center;
-    margin-top: 1.5rem;
-    width: 100%;
+  text-align: center;
+  margin-top: 1rem;
 }
 
-.registro p {
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 1rem;
-}
-
-.registro-btn {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--accent-color), #e68900);
-    color: var(--background-dark);
-    padding: 0.8rem 2rem;
-    border-radius: 25px;
-    font-family: 'Orbitron', monospace;
-    font-weight: 600;
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-}
-
-.registro-btn:hover {
-    background: linear-gradient(135deg, #e68900, var(--accent-color));
-    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.5);
-    transform: translateY(-3px);
-}
-
-/* Mensajes de error/aviso */
-.messages {
-    background: rgba(244, 67, 54, 0.1);
-    border: 1px solid var(--error-color);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    color: #ff6b6b;
-    text-align: center;
-    font-family: 'Exo 2', sans-serif;
-    backdrop-filter: blur(10px);
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.login-notice {
-    color: #ffc107;
-    text-align: center;
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 500;
-    margin-bottom: 1rem;
-    padding: 0.8rem;
-    background: rgba(255, 193, 7, 0.1);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 193, 7, 0.3);
-}
-
-/* Animaciones */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-    .login-container {
-        padding: 1rem;
-        margin: 1rem;
-    }
-    
-    .login-box {
-        padding: 2rem 1.5rem;
-        max-width: 90%;
-    }
-
-    .role-selection {
-        grid-template-columns: 1fr;
-        gap: 0.8rem;
-    }
-
-    .role-btn {
-        padding: 0.8rem;
-        font-size: 0.8rem;
-    }
-
-    .system-title {
-        font-size: 1rem !important;
-        margin-bottom: 1.5rem !important;
-    }
-
-    .login-logo {
-        width: 150px !important;
-    }
+.role-btn i {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+  display: inline-block;
+  vertical-align: middle;
 }
 
-@media (max-width: 480px) {
-    .login-box {
-        padding: 1.5rem 1rem;
-    }
+.role-btn[data-role="admin"] i {
+  color: #ff9800;
+}
 
-    .role-btn {
-        padding: 0.7rem;
-        font-size: 0.75rem;
-        gap: 4px;
-    }
+.role-btn[data-role="jugador"] i {
+  color: #3f51b5;
+}
 
-    .role-btn i {
-        font-size: 1.2rem;
-    }
-
-    .form-control {
-        padding: 0.8rem;
-    }
-
-    .btn {
-        padding: 0.8rem;
-        font-size: 0.9rem;
-    }
+.role-btn[data-role="arbitro"] i {
+  color: #f44336;
 }
