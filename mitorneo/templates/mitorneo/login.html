@@ -7,14 +7,28 @@
     <link rel="stylesheet" href="{% static 'mitorneo/login.css' %}">
     <link rel="stylesheet" href="{% static 'mitorneo/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Georgia', serif !important;
+        }
+        .login-logo {
+            max-width: 400px !important;
+            height: auto !important;
+            margin: 0 auto !important;
+            display: block !important;
+        }
+        .role-btn span {
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body style="background: url('/static/mitorneo/imagenes/fondopng.jpg') no-repeat center center/cover !important; background-size: cover !important; background-attachment: fixed !important; background-color: #121212;">
     <div class="login-container" style="max-width: 480px; margin: auto; box-sizing: border-box;">
         <div class="login-box" style="padding: 2rem; box-sizing: border-box;">
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <img src="{% static 'mitorneo/imagenes/Logo PlayLiga.png' %}" alt="Logo PlayLiga" style="max-width: 180px; height: auto; margin: 0 auto; display: block;"/>
+            <div style="text-align: center; margin-bottom: 0.2rem;">
+                <img src="{% static 'mitorneo/imagenes/Logo PlayLiga.png' %}" alt="Logo PlayLiga" class="login-logo"/>
             </div>
-            <p style="text-align: center; margin-bottom: 2rem; color: #ccc;">Sistema de Gestión de Torneos</p>
+            <p style="text-align: center; margin-bottom: 0.5rem; color: #000000;">Sistema de Gestión de Torneos</p>
             
             <div class="role-selection" style="padding: 0 1rem; box-sizing: border-box;">
                 <button class="role-btn active" data-role="admin">
