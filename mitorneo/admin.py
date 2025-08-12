@@ -19,7 +19,7 @@ class ArbitroAdmin(admin.ModelAdmin):
 
 @admin.register(Jugador)
 class JugadorAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'apellido', 'correo', 'nivel', 'equipo')
+    list_display = ('nombre', 'apellido', 'numero_camiseta', 'nivel', 'equipo')
     search_fields = ('nombre', 'apellido', 'correo')
     list_filter = ('equipo',)
 

@@ -57,9 +57,14 @@ class Jugador(models.Model):
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     nivel = models.IntegerField()
-    correo = models.EmailField(unique=True)
+    # Removed correo field as requested
     equipo = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='jugadores')
     posicion = models.CharField(max_length=50, null=True, blank=True)
+    numero_camiseta = models.IntegerField(null=True, blank=True)
+    biografia = models.TextField(null=True, blank=True)
+    partidos_jugados = models.IntegerField(default=0)
+    goles = models.IntegerField(default=0)
+    asistencias = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"

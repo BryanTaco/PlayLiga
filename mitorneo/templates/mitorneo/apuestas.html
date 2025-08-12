@@ -18,14 +18,33 @@
         }
 
         body {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-image: url("{% static 'mitorneo/imagenes/Fondo_apostador.jpeg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--text-light);
-            font-family: 'Arial', sans-serif;
-            padding: 2rem;
+            font-family: 'Georgia', serif;
+            padding: 3rem 2rem;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
+            gap: 1.5rem;
+            position: relative;
+            text-align: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
         }
 
         h1 {
@@ -138,8 +157,12 @@
     </style>
 </head>
 <body>
-    <h1>Apuestas Interactivas</h1>
-    <button onclick="window.history.back()" style="background-color:#00796b; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Regresar</button>
+    <div id="welcome-user" style="position: fixed; top: 1rem; left: 1rem; color: var(--text-light); font-weight: bold; font-size: 1.2rem; z-index: 1000;">
+        Bienvenido, {{ request.user.username }}
+    </div>
+
+    <h1 style="margin-top: 0;">Apuestas Interactivas</h1>
+    <button id="btn-regresar" onclick="window.history.back()">Regresar</button>
 
     <div id="saldo-container">
         Saldo Actual: <span id="saldo-usuario">{{ saldo }}</span>
@@ -201,5 +224,48 @@
     </div>
 
     <script src="{% static 'mitorneo/apuestas.js' %}"></script>
+
+    <style>
+        #btn-regresar, #apostar-btn {
+            background-color: var(--accent-color);
+            color: var(--background-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 150px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--accent-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #btn-regresar:hover, #apostar-btn:hover {
+            background-color: #e68900;
+            box-shadow: 0 0 20px #e68900;
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        #btn-regresar::before, #apostar-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 40%);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        #btn-regresar:hover::before, #apostar-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    </style>
 </body>
 </html>

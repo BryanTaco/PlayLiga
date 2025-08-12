@@ -7,16 +7,17 @@
   <title>Panel del Jugador</title>
   <link rel="stylesheet" href="{% static 'mitorneo/jugador_panel.css' %}" />
 </head>
-<body>
-  <div class="contenedor">
-    <h1>Bienvenido, {{ jugador.nombre }}</h1>
+<body style="background-image: url('{% static 'mitorneo/imagenes/Fondo_apostador.jpeg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #000;">
+  <!-- Debug: Background image URL: {% static 'mitorneo/imagenes/Fondo_apostador.jpeg' %} -->
+  <div class="contenedor" style="background-color: rgba(0, 0, 0, 0.85); padding: 30px; border-radius: 20px; max-width: 900px; margin: 3rem auto; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; box-shadow: 0 8px 16px rgba(0,0,0,0.6);">
+    <h1 style="color: #fff; font-weight: 700; font-size: 2.5rem; text-align: center; margin-bottom: 2rem;">Bienvenido, {{ jugador.nombre }}</h1>
 
-    <div class="seccion">
-      <h2>Información Personal</h2>
+    <div class="seccion" style="color: #add8e6; font-weight: 600; margin-bottom: 2rem;">
+      <h2 style="color: #1e90ff; border-bottom: 2px solid #1e90ff; padding-bottom: 0.5rem; margin-bottom: 1rem;">Información Personal</h2>
       <p><strong>Nombre:</strong> {{ jugador.nombre }}</p>
       <p><strong>Apellido:</strong> {{ jugador.apellido }}</p>
       <p><strong>Usuario:</strong> {{ jugador.usuario.username }}</p>
-      <p><strong>Correo:</strong> {{ jugador.correo }}</p>
+      <p><strong>Número de Camiseta:</strong> {{ jugador.numero_camiseta|default:"N/A" }}</p>
       <p><strong>Equipo:</strong> 
         {% if equipo %}
           {{ equipo.nombre }}
@@ -24,6 +25,29 @@
           <em>No asignado</em>
         {% endif %}
       </p>
+    </div>
+    <style>
+      /* Additional styling can be added here */
+    </style>
+
+    <div class="seccion" style="margin-top: 2rem;">
+      <h2>Estadísticas</h2>
+      <div style="display: flex; justify-content: space-around; font-size: 1.2rem;">
+        <div>
+          <strong>Partidos:</strong> {{ jugador.partidos_jugados|default:"0" }}
+        </div>
+        <div>
+          <strong>Goles:</strong> {{ jugador.goles|default:"0" }}
+        </div>
+        <div>
+          <strong>Asistencias:</strong> {{ jugador.asistencias|default:"0" }}
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion" style="margin-top: 2rem;">
+      <h2>Biografía</h2>
+      <p>{{ jugador.biografia|default:"Biografía no disponible." }}</p>
     </div>
 
     <div class="seccion">
