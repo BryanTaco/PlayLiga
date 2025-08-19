@@ -68,30 +68,30 @@ def cerrar_sesion(request):
     logout(request)
     return redirect('login')
 
+# mitorneo/views.py
+
 def registro_jugador(request):
+    # Define la consulta de equipos fuera del bloque if
+    equipos = Equipo.objects.all()
+    context = {'equipos': equipos}
+
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
-        apellido = request.POST.get('apellido', '').strip()
+        apellido = request.POST.gfet('apellido', '').strip()
         correo = request.POST.get('correo', '').strip()
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
+        equipo_id = request.POST.get('equipo')
 
         # Validaciones
-        if not all([nombre, apellido, correo, username, password]):
+        if not all([nombre, apellido, correo, username, password, equipo_id]):
             messages.error(request, 'Todos los campos son obligatorios.')
-            return render(request, 'mitorneo/registro_jugador.html')
-
-        if len(password) < 6:
-            messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
-            return render(request, 'mitorneo/registro_jugador.html')
+            # Al renderizar el error, el contexto con los equipos ya está listo
+            return render(request, 'mitorneo/registro_jugador.html', context)
 
         if Usuario.objects.filter(username=username).exists():
             messages.error(request, 'El nombre de usuario ya está en uso.')
-            return render(request, 'mitorneo/registro_jugador.html')
-
-        if Usuario.objects.filter(email=correo).exists():
-            messages.error(request, 'El correo electrónico ya está registrado.')
-            return render(request, 'mitorneo/registro_jugador.html')
+            return render(request, 'mitorneo/registro_jugador.html', context)
 
         try:
             user = Usuario.objects.create_user(
@@ -100,18 +100,26 @@ def registro_jugador(request):
                 password=password,
                 rol='jugador'
             )
+            
+            equipo_seleccionado = Equipo.objects.get(id=equipo_id)
+
             Jugador.objects.create(
                 usuario=user,
                 nombre=nombre,
                 apellido=apellido,
                 correo=correo,
-                nivel=1  # Nivel inicial
+                nivel=1,
+                equipo=equipo_seleccionado
             )
             messages.success(request, 'Registro de jugador exitoso. Ahora puedes iniciar sesión.')
             return redirect('login')
+        except Equipo.DoesNotExist:
+            messages.error(request, 'El equipo seleccionado no es válido.')
         except Exception as e:
             messages.error(request, f'Error al registrar el jugador: {e}')
-    return render(request, 'mitorneo/registro_jugador.html')
+
+    # Para peticiones GET, simplemente renderiza la plantilla con el contexto
+    return render(request, 'mitorneo/registro_jugador.html', context)
 
 def registro_arbitro(request):
     if request.method == 'POST':
@@ -360,8 +368,6 @@ def api_recargar_saldo(request):
 def api_simular_partido(request, partido_id):
     try:
         partido = get_object_or_404(Partido, id=partido_id)
-        if partido.goles_local is not None or partido.goles_visitante is not None:
-            return JsonResponse({'error': 'El partido ya ha sido simulado.'}, status=400)
 
         # Simulación de goles
         goles_local = random.randint(0, 5)

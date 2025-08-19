@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),  # si usas
     path('login/', views.login_view, name='login'),
+    path('get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
     path('logout/', views.cerrar_sesion, name='logout'),
     path('registro/jugador/', views.registro_jugador, name='registro_jugador'),
     path('registro/arbitro/', views.registro_arbitro, name='registro_arbitro'),
