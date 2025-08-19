@@ -83,6 +83,7 @@ class Partido(models.Model):
 class Apuesta(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='apuestas')
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='apuestas')
+    partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='apuestas', null=True, blank=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     fecha_apuesta = models.DateTimeField(auto_now_add=True)
     ganador = models.BooleanField(default=False)

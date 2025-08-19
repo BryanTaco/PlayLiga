@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify({
                 equipo_id: equipoId,
+                partido_id: partidoId,
                 monto: monto
             })
         })

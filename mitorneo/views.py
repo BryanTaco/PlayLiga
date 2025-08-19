@@ -477,12 +477,16 @@ def api_apuestas(request):
         try:
             data = json.loads(request.body)
             equipo_id = data.get('equipo_id')
+            partido_id = data.get('partido_id')
             monto = data.get('monto', 0)
 
             if not equipo_id:
                 return HttpResponseBadRequest('Falta equipo_id')
 
             equipo = get_object_or_404(Equipo, id=equipo_id)
+            partido = None
+            if partido_id:
+                partido = get_object_or_404(Partido, id=partido_id)
 
             # Validar saldo suficiente
             if monto <= 0:
@@ -493,6 +497,7 @@ def api_apuestas(request):
             apuesta = Apuesta.objects.create(
                 usuario=request.user,
                 equipo=equipo,
+                partido=partido,
                 monto=monto
             )
             return JsonResponse({
