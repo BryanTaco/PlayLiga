@@ -8,6 +8,7 @@
 </head>
 <body>
     <h1>Asignar Jugador a Equipo</h1>
+    <button onclick="window.location.href='{% url 'panel_admin' %}'" class="btn btn-secondary">Regresar al Panel Admin</button>
     <form id="asignar-form">
         <label for="jugador-select">Selecciona un jugador:</label>
         <select id="jugador-select" name="jugador_id" required>
@@ -30,16 +31,14 @@
         <label for="posicion-input">Posición:</label>
         <input type="text" id="posicion-input" name="posicion" placeholder="Ejemplo: Delantero" />
         <br/>
-
-        <button type="submit">Asignar</button>
-        <button type="button" onclick="window.location.href='{% url 'panel_admin' %}'">Regresar</button>
+        <button type="submit">Asignar Jugador</button>
     </form>
-
-    <div id="mensaje"></div>
+    <p id="mensaje"></p>
 
     <script>
         document.getElementById('asignar-form').addEventListener('submit', function(event) {
             event.preventDefault();
+
             const jugadorId = document.getElementById('jugador-select').value;
             const equipoId = document.getElementById('equipo-select').value;
             const posicion = document.getElementById('posicion-input').value;

@@ -46,7 +46,7 @@ class Arbitro(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
-    correo = models.EmailField(unique=True)
+    correo = models.EmailField(unique=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
@@ -56,8 +56,8 @@ class Jugador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
-    nivel = models.IntegerField()
-    # Removed correo field as requested
+    nivel = models.IntegerField(default=1)
+    correo = models.EmailField(unique=True, null=True, blank=True)
     equipo = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='jugadores')
     posicion = models.CharField(max_length=50, null=True, blank=True)
     numero_camiseta = models.IntegerField(null=True, blank=True)
@@ -75,6 +75,11 @@ class Partido(models.Model):
     equipo_local = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_local')
     equipo_visitante = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_visitante')
     arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True, related_name='partidos_arbitrados')
+    goles_local = models.IntegerField(null=True, blank=True)
+    goles_visitante = models.IntegerField(null=True, blank=True)
+    simulado = models.BooleanField(default=False)
+    ganador = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='partidos_ganados')
+    resultado = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return f"{self.equipo_local} vs {self.equipo_visitante} - {self.fecha.strftime('%d/%m/%Y %H:%M')}"
@@ -82,6 +87,7 @@ class Partido(models.Model):
 
 class Apuesta(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='apuestas')
+    partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='apuestas')
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='apuestas')
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     fecha_apuesta = models.DateTimeField(auto_now_add=True)
@@ -112,7 +118,7 @@ class AuditoriaRol(models.Model):
     rol_anterior = models.CharField(max_length=20, choices=USER_ROLES)
     rol_nuevo = models.CharField(max_length=20, choices=USER_ROLES)
     fecha_cambio = models.DateTimeField(auto_now_add=True)
-    cambiado_por = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='auditorias_realizadas')
+    cambiado_por = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='auditorias_realizadas', null=True, blank=True)
 
     def __str__(self):
         return f"{self.usuario.username}: {self.rol_anterior} → {self.rol_nuevo} por {self.cambiado_por.username}"
