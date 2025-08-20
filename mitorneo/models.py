@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Sum
 
 # Roles de usuario con mejor estructura
 USER_ROLES = [
@@ -16,11 +17,12 @@ class Usuario(AbstractUser):
 
     @property
     def saldo(self):
-        total_apostado = self.apuestas.aggregate(total=Sum('monto'))['total'] or 0
-        total_ganado = self.apuestas.filter(ganador=True).aggregate(total=Sum('monto'))['total'] or 0
-        ganancia_neta_apuestas = (total_ganado * 2) - total_apostado
-
-        return self.saldo_real + ganancia_neta_apuestas
+        """
+        El saldo simplemente es el saldo_real
+        Las apuestas se descuentan directamente del saldo_real
+        Las ganancias se suman directamente al saldo_real
+        """
+        return self.saldo_real
 
     def es_admin(self):
         return self.rol == 'admin'
@@ -33,14 +35,6 @@ class Usuario(AbstractUser):
 
     def es_apostador(self):
         return self.rol == 'apostador'
-
-    @property
-    def saldo(self):
-        # Saldo total = saldo_real + ganancias de apuestas - gastos de apuestas
-        apuestas = self.apuestas.all()
-        ganancias = sum([apuesta.monto for apuesta in apuestas if apuesta.ganador])
-        gastos = sum([apuesta.monto for apuesta in apuestas])
-        return self.saldo_real + ganancias - gastos
 
 
 class Equipo(models.Model):
@@ -79,7 +73,7 @@ class Jugador(models.Model):
 
 
 class Partido(models.Model):
-    fecha = models.DateTimeField()  # Ya incluye fecha y hora
+    fecha = models.DateTimeField()
     equipo_local = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_local')
     equipo_visitante = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_visitante')
     arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True, related_name='partidos_arbitrados')
@@ -95,9 +89,8 @@ class Partido(models.Model):
 
 class Apuesta(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='apuestas')
-    partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='apuestas')
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='apuestas')
     partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='apuestas', null=True, blank=True)
+    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='apuestas')
     monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     fecha_apuesta = models.DateTimeField(auto_now_add=True)
     ganador = models.BooleanField(default=False)
@@ -121,7 +114,6 @@ class RecargaSaldo(models.Model):
         return f"Recarga de {self.monto} por {self.usuario.username} via {self.metodo_pago}"
 
 
-# Modelo de auditoría para roles
 class AuditoriaRol(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     rol_anterior = models.CharField(max_length=20, choices=USER_ROLES)
@@ -130,4 +122,4 @@ class AuditoriaRol(models.Model):
     cambiado_por = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='auditorias_realizadas', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.usuario.username}: {self.rol_anterior} → {self.rol_nuevo} por {self.cambiado_por.username}"
+        return f"{self.usuario.username}: {self.rol_anterior} → {self.rol_nuevo} por {self.cambiado_por.username if self.cambiado_por else 'Sistema'}"

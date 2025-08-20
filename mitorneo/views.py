@@ -68,25 +68,22 @@ def cerrar_sesion(request):
     logout(request)
     return redirect('login')
 
-# mitorneo/views.py
-
 def registro_jugador(request):
-    # Define la consulta de equipos fuera del bloque if
     equipos = Equipo.objects.all()
     context = {'equipos': equipos}
 
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
-        apellido = request.POST.gfet('apellido', '').strip()
+        apellido = request.POST.get('apellido', '').strip()  # CORREGIDO: Era 'gfet' ahora es 'get'
         correo = request.POST.get('correo', '').strip()
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
         equipo_id = request.POST.get('equipo')
+        nivel = request.POST.get('nivel', 1)
 
         # Validaciones
         if not all([nombre, apellido, correo, username, password, equipo_id]):
             messages.error(request, 'Todos los campos son obligatorios.')
-            # Al renderizar el error, el contexto con los equipos ya está listo
             return render(request, 'mitorneo/registro_jugador.html', context)
 
         if Usuario.objects.filter(username=username).exists():
@@ -108,7 +105,7 @@ def registro_jugador(request):
                 nombre=nombre,
                 apellido=apellido,
                 correo=correo,
-                nivel=1,
+                nivel=int(nivel) if nivel else 1,
                 equipo=equipo_seleccionado
             )
             messages.success(request, 'Registro de jugador exitoso. Ahora puedes iniciar sesión.')
@@ -118,7 +115,6 @@ def registro_jugador(request):
         except Exception as e:
             messages.error(request, f'Error al registrar el jugador: {e}')
 
-    # Para peticiones GET, simplemente renderiza la plantilla con el contexto
     return render(request, 'mitorneo/registro_jugador.html', context)
 
 def registro_arbitro(request):
@@ -217,7 +213,7 @@ def panel_jugador(request):
     partidos = Partido.objects.filter(
         Q(equipo_local=jugador.equipo) | Q(equipo_visitante=jugador.equipo)
     ).order_by('fecha')
-    return render(request, 'mitorneo/jugador_panel.html', {'jugador': jugador, 'partidos': partidos})
+    return render(request, 'mitorneo/jugador_panel.html', {'jugador': jugador, 'partidos': partidos, 'equipo': jugador.equipo})
 
 @login_required
 @user_passes_test(es_arbitro)
@@ -227,15 +223,30 @@ def panel_arbitro(request):
     return render(request, 'mitorneo/arbitro_panel.html', {'arbitro': arbitro, 'partidos': partidos})
 
 @login_required
-@user_passes_test(es_apostador)
 def apuestas_page(request):
-    partidos = Partido.objects.filter(simulado=False, fecha__gt=timezone.now()).order_by('fecha')
-    return render(request, 'mitorneo/apuestas.html', {'partidos': partidos})
+    equipos = Equipo.objects.all()
+    proximos_partidos = Partido.objects.filter(simulado=False, fecha__gt=timezone.now()).order_by('fecha')
+    saldo = request.user.saldo if hasattr(request.user, 'saldo') else 0
+    return render(request, 'mitorneo/apuestas.html', {
+        'equipos': equipos,
+        'proximos_partidos': proximos_partidos,
+        'saldo': saldo
+    })
 
 @login_required
 def resultado_partido(request, partido_id):
     partido = get_object_or_404(Partido, id=partido_id)
-    return render(request, 'mitorneo/resultado.html', {'partido': partido})
+    jugadores_local = Jugador.objects.filter(equipo=partido.equipo_local)
+    jugadores_visitante = Jugador.objects.filter(equipo=partido.equipo_visitante)
+    
+    niveles_local = [{'nombre': f'{j.nombre} {j.apellido}', 'nivel': j.nivel} for j in jugadores_local]
+    niveles_visitante = [{'nombre': f'{j.nombre} {j.apellido}', 'nivel': j.nivel} for j in jugadores_visitante]
+    
+    return render(request, 'mitorneo/resultado.html', {
+        'partido': partido,
+        'niveles_local': json.dumps(niveles_local),
+        'niveles_visitante': json.dumps(niveles_visitante)
+    })
 
 # Vistas de API
 @require_GET
@@ -309,7 +320,8 @@ def api_crear_partido(request):
 def api_partidos(request):
     partidos = Partido.objects.all().values(
         'id', 'fecha', 'equipo_local__nombre', 'equipo_visitante__nombre', 
-        'arbitro__nombre', 'arbitro__apellido', 'simulado', 'ganador__nombre'
+        'arbitro__nombre', 'arbitro__apellido', 'simulado', 'ganador__nombre',
+        'goles_local', 'goles_visitante'
     )
     partidos_list = []
     for p in partidos:
@@ -318,25 +330,28 @@ def api_partidos(request):
             'fecha': p['fecha'],
             'equipo_local': p['equipo_local__nombre'],
             'equipo_visitante': p['equipo_visitante__nombre'],
-            'arbitro': f'{p["arbitro__nombre"]} {p["arbitro__apellido"]}',
+            'arbitro': f'{p["arbitro__nombre"]} {p["arbitro__apellido"]}' if p["arbitro__nombre"] else 'Sin árbitro',
             'simulado': p['simulado'],
+            'goles_local': p['goles_local'],
+            'goles_visitante': p['goles_visitante'],
             'ganador': p['ganador__nombre'] if p['ganador__nombre'] else None,
         })
     return JsonResponse(partidos_list, safe=False)
 
 @login_required
-@user_passes_test(es_apostador)
 @require_http_methods(["GET"])
 def api_saldo(request):
-    return JsonResponse({'saldo': request.user.saldo})
+    return JsonResponse({'saldo': float(request.user.saldo)})
 
 @csrf_exempt
+@login_required
 @require_http_methods(["POST"])
 def api_recargar_saldo(request):
     try:
         data = json.loads(request.body)
-        monto = data.get('monto')
+        monto = decimal.Decimal(str(data.get('monto', 0)))
         metodo_pago = data.get('metodo_pago')
+        datos_pago = data.get('datos_pago', {})
 
         if monto <= 0:
             return HttpResponseBadRequest('El monto de la recarga debe ser positivo.')
@@ -344,8 +359,9 @@ def api_recargar_saldo(request):
             return HttpResponseBadRequest('El método de pago es obligatorio.')
 
         # Actualizamos el saldo real del usuario
-        request.user.saldo_real += monto
+        request.user.saldo_real = F('saldo_real') + monto
         request.user.save()
+        request.user.refresh_from_db()
         
         RecargaSaldo.objects.create(
             usuario=request.user,
@@ -354,14 +370,11 @@ def api_recargar_saldo(request):
             datos_pago=json.dumps(datos_pago)
         )
 
-        # --- INICIO DE LA CORRECCIÓN ---
-        # Asegúrate de devolver la propiedad 'saldo', no 'saldo_real'.
-        # La propiedad 'saldo' ya incluye el nuevo saldo_real en su cálculo.
         return JsonResponse({
             'message': 'Recarga realizada con éxito.', 
-            'saldo': request.user.saldo  # <-- USA LA PROPIEDAD '.saldo'
+            'saldo': float(request.user.saldo),
+            'nuevo_saldo': float(request.user.saldo)
         }, status=200)
-        # --- FIN DE LA CORRECCIÓN ---
 
     except (ValueError, decimal.InvalidOperation):
         return HttpResponseBadRequest('Monto inválido.')
@@ -391,12 +404,11 @@ def api_simular_partido(request, partido_id):
             partido.ganador = partido.equipo_visitante
         else:
             partido.ganador = None
-        # Si es empate, ganador queda como None
         
         partido.save()
 
         # Procesar apuestas ganadoras
-        Apuesta.objects.filter(partido=partido).update(ganador=False) # Reseteamos por si es re-simulación
+        Apuesta.objects.filter(partido=partido).update(ganador=False)
         if partido.ganador:
             Apuesta.objects.filter(partido=partido, equipo=partido.ganador).update(ganador=True)
 
@@ -404,6 +416,8 @@ def api_simular_partido(request, partido_id):
             'success': True,
             'goles_local': goles_local,
             'goles_visitante': goles_visitante,
+            'equipo_local': partido.equipo_local.nombre,
+            'equipo_visitante': partido.equipo_visitante.nombre,
             'ganador': partido.ganador.nombre if partido.ganador else 'Empate',
             'mensaje': 'Partido simulado exitosamente.'
         })
@@ -415,12 +429,10 @@ def api_simular_partido(request, partido_id):
 @user_passes_test(es_admin)
 @require_http_methods(["POST"])
 def api_asignar_jugador(request):
-    """API para asignar un jugador a un equipo"""
     try:
         data = json.loads(request.body)
         jugador_id = data.get('jugador_id')
         equipo_id = data.get('equipo_id')
-        numero_camiseta = data.get('numero_camiseta')
         posicion = data.get('posicion')
         
         if not jugador_id or not equipo_id:
@@ -429,12 +441,6 @@ def api_asignar_jugador(request):
         jugador = get_object_or_404(Jugador, id=jugador_id)
         equipo = get_object_or_404(Equipo, id=equipo_id)
         
-        # Verificar que el número de camiseta no esté ocupado
-        if numero_camiseta:
-            if Jugador.objects.filter(equipo=equipo, numero_camiseta=numero_camiseta).exclude(id=jugador_id).exists():
-                return JsonResponse({'error': f'El número {numero_camiseta} ya está ocupado en este equipo.'}, status=400)
-            jugador.numero_camiseta = numero_camiseta
-        
         jugador.equipo = equipo
         if posicion:
             jugador.posicion = posicion
@@ -442,33 +448,22 @@ def api_asignar_jugador(request):
         
         return JsonResponse({
             'success': True,
-            'mensaje': f'{jugador.nombre} {jugador.apellido} asignado a {equipo.nombre}',
-            'jugador': {
-                'id': jugador.id,
-                'nombre': f'{jugador.nombre} {jugador.apellido}',
-                'equipo': equipo.nombre,
-                'numero_camiseta': jugador.numero_camiseta,
-                'posicion': jugador.posicion
-            }
+            'mensaje': f'{jugador.nombre} {jugador.apellido} asignado a {equipo.nombre}'
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
 @require_GET
 def api_bfs_graph(request):
-    """API para obtener datos del grafo de equipos usando BFS"""
     try:
-        # Crear grafo basado en partidos jugados
         equipos = list(Equipo.objects.all())
         partidos = Partido.objects.filter(simulado=True)
         
-        # Construir grafo de adyacencia
         grafo = {equipo.id: [] for equipo in equipos}
         for partido in partidos:
             grafo[partido.equipo_local.id].append(partido.equipo_visitante.id)
             grafo[partido.equipo_visitante.id].append(partido.equipo_local.id)
         
-        # BFS desde el primer equipo
         if not equipos:
             return JsonResponse({'nodos': [], 'conexiones': []})
         
@@ -486,7 +481,6 @@ def api_bfs_graph(request):
                     visitados.add(vecino)
                     cola.append(vecino)
         
-        # Preparar datos para respuesta
         nodos = []
         for equipo in equipos:
             nodos.append({
@@ -511,140 +505,70 @@ def api_bfs_graph(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-@require_GET
+@csrf_exempt
+@login_required
+@user_passes_test(es_admin)
+@require_http_methods(["PUT", "DELETE"])
 def api_equipo_detail(request, equipo_id):
-    """API para obtener detalles de un equipo"""
     try:
         equipo = get_object_or_404(Equipo, id=equipo_id)
-        jugadores = Jugador.objects.filter(equipo=equipo)
         
-        # Estadísticas del equipo
-        partidos_local = Partido.objects.filter(equipo_local=equipo, simulado=True)
-        partidos_visitante = Partido.objects.filter(equipo_visitante=equipo, simulado=True)
+        if request.method == 'PUT':
+            data = json.loads(request.body)
+            nombre = data.get('nombre')
+            if nombre:
+                equipo.nombre = nombre
+                equipo.save()
+            return JsonResponse({'success': True, 'mensaje': 'Equipo actualizado'})
         
-        victorias = 0
-        empates = 0
-        derrotas = 0
-        goles_favor = 0
-        goles_contra = 0
-        
-        for partido in partidos_local:
-            if partido.goles_local is not None and partido.goles_visitante is not None:
-                goles_favor += partido.goles_local
-                goles_contra += partido.goles_visitante
-                if partido.goles_local > partido.goles_visitante:
-                    victorias += 1
-                elif partido.goles_local == partido.goles_visitante:
-                    empates += 1
-                else:
-                    derrotas += 1
-        
-        for partido in partidos_visitante:
-            if partido.goles_local is not None and partido.goles_visitante is not None:
-                goles_favor += partido.goles_visitante
-                goles_contra += partido.goles_local
-                if partido.goles_visitante > partido.goles_local:
-                    victorias += 1
-                elif partido.goles_visitante == partido.goles_local:
-                    empates += 1
-                else:
-                    derrotas += 1
-        
-        return JsonResponse({
-            'equipo': {
-                'id': equipo.id,
-                'nombre': equipo.nombre,
-                'jugadores': [
-                    {
-                        'id': j.id,
-                        'nombre': f'{j.nombre} {j.apellido}',
-                        'posicion': j.posicion,
-                        'numero_camiseta': j.numero_camiseta,
-                        'goles': j.goles,
-                        'asistencias': j.asistencias,
-                        'partidos_jugados': j.partidos_jugados
-                    } for j in jugadores
-                ],
-                'estadisticas': {
-                    'partidos_jugados': victorias + empates + derrotas,
-                    'victorias': victorias,
-                    'empates': empates,
-                    'derrotas': derrotas,
-                    'goles_favor': goles_favor,
-                    'goles_contra': goles_contra,
-                    'diferencia_goles': goles_favor - goles_contra
-                }
-            }
-        })
+        elif request.method == 'DELETE':
+            equipo.delete()
+            return JsonResponse({'success': True, 'mensaje': 'Equipo eliminado'})
+            
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-@require_GET
+@csrf_exempt
+@login_required
+@user_passes_test(es_admin)
+@require_http_methods(["PUT", "DELETE"])
 def api_partido_detail(request, partido_id):
-    """API para obtener detalles de un partido"""
     try:
         partido = get_object_or_404(Partido, id=partido_id)
         
-        return JsonResponse({
-            'partido': {
-                'id': partido.id,
-                'fecha': partido.fecha.isoformat(),
-                'equipo_local': {
-                    'id': partido.equipo_local.id,
-                    'nombre': partido.equipo_local.nombre
-                },
-                'equipo_visitante': {
-                    'id': partido.equipo_visitante.id,
-                    'nombre': partido.equipo_visitante.nombre
-                },
-                'arbitro': {
-                    'id': partido.arbitro.id if partido.arbitro else None,
-                    'nombre': f'{partido.arbitro.nombre} {partido.arbitro.apellido}' if partido.arbitro else None
-                },
-                'goles_local': partido.goles_local,
-                'goles_visitante': partido.goles_visitante,
-                'simulado': partido.simulado,
-                'ganador': {
-                    'id': partido.ganador.id if partido.ganador else None,
-                    'nombre': partido.ganador.nombre if partido.ganador else None
-                },
-                'resultado': partido.resultado if hasattr(partido, 'resultado') else None
-            }
-        })
+        if request.method == 'PUT':
+            data = json.loads(request.body)
+            fecha_str = data.get('fecha')
+            if fecha_str:
+                fecha = parse_datetime(fecha_str)
+                partido.fecha = fecha
+                partido.save()
+            return JsonResponse({'success': True, 'mensaje': 'Partido actualizado'})
+        
+        elif request.method == 'DELETE':
+            partido.delete()
+            return JsonResponse({'success': True, 'mensaje': 'Partido eliminado'})
+            
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-# mitorneo/views.py
-
-# 1. Quita el decorador @require_http_methods
-# @require_http_methods(["POST"] ) 
 @csrf_exempt
 @login_required
-@user_passes_test(es_apostador)
 def api_apuestas(request):
-    """
-    API para obtener la lista de apuestas (GET) o crear una nueva apuesta (POST).
-    """
-    # --- INICIO DE LA SOLUCIÓN ---
-
-    # 2. Manejar la petición GET para devolver la lista de apuestas
     if request.method == 'GET':
         try:
             apuestas = Apuesta.objects.filter(usuario=request.user).order_by('-fecha_apuesta')
-            # Preparamos los datos en un formato JSON amigable
             data = [{
                 'equipo': apuesta.equipo.nombre,
-                'monto': apuesta.monto,
-                'fecha_apuesta': apuesta.fecha_apuesta.strftime('%d/%m/%Y %H:%M'),
-                'partido': f"{apuesta.partido.equipo_local.nombre} vs {apuesta.partido.equipo_visitante.nombre}",
+                'monto': float(apuesta.monto),
+                'fecha_apuesta': apuesta.fecha_apuesta.isoformat(),
                 'ganador': apuesta.ganador
             } for apuesta in apuestas]
             return JsonResponse(data, safe=False)
         except Exception as e:
-            return JsonResponse({'error': f'Error al obtener apuestas: {str(e)}'}, status=500)
-
-    # 3. Mantener la lógica POST que ya tenías
-    if request.method == 'POST':
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    elif request.method == 'POST':
         try:
             data = json.loads(request.body)
             partido_id = data.get('partido_id')
@@ -663,9 +587,13 @@ def api_apuestas(request):
             if equipo not in [partido.equipo_local, partido.equipo_visitante]:
                 return JsonResponse({'error': 'El equipo no participa en este partido.'}, status=400)
             
-            # Usamos la propiedad 'saldo' que ya tienes en tu modelo Usuario
             if request.user.saldo < monto:
                 return JsonResponse({'error': 'Saldo insuficiente.'}, status=400)
+            
+            # Descontar del saldo
+            request.user.saldo_real = F('saldo_real') - monto
+            request.user.save()
+            request.user.refresh_from_db()
             
             apuesta = Apuesta.objects.create(
                 usuario=request.user,
@@ -677,90 +605,77 @@ def api_apuestas(request):
             return JsonResponse({
                 'success': True,
                 'mensaje': 'Apuesta realizada exitosamente.',
-                # Devolvemos el nuevo saldo para que el frontend lo pueda actualizar
-                'nuevo_saldo': request.user.saldo 
+                'nuevo_saldo': float(request.user.saldo)
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-
-    # 4. Devolver un error si se usa otro método no soportado (como PUT o DELETE)
-    return JsonResponse({'error': f'Método {request.method} no permitido.'}, status=405)
-    # --- FIN DE LA SOLUCIÓN ---
-
+    
+    return JsonResponse({'error': 'Método no permitido.'}, status=405)
 
 @login_required
 @user_passes_test(es_admin)
 def admin_asignar_jugador_page(request):
-    """Página de administración para asignar jugadores a equipos"""
-    return render(request, 'mitorneo/admin_asignar_jugador.html')
+    jugadores = Jugador.objects.all()
+    equipos = Equipo.objects.all()
+    return render(request, 'mitorneo/admin_asignar_jugador.html', {
+        'jugadores': jugadores,
+        'equipos': equipos
+    })
 
 @login_required
 @user_passes_test(es_admin)
 def admin_ganadores_apuestas(request):
-    """Página de administración para ver ganadores de apuestas"""
-    apuestas_ganadoras = Apuesta.objects.filter(ganador=True).select_related('usuario', 'equipo', 'partido')
+    apuestas = Apuesta.objects.all()
     return render(request, 'mitorneo/admin_ganadores_apuestas.html', {
-        'apuestas_ganadoras': apuestas_ganadoras
+        'apuestas': apuestas
     })
 
 @login_required
 def permutaciones_combinaciones_page(request):
-    """Página para mostrar permutaciones y combinaciones"""
-    return render(request, 'mitorneo/permutaciones_combinaciones.html')
+    equipos = Equipo.objects.all()
+    return render(request, 'mitorneo/permutaciones_combinaciones.html', {
+        'equipos': equipos
+    })
 
 @require_GET
 def api_estadisticas_equipo(request):
-    """API para obtener estadísticas de todos los equipos"""
     try:
-        equipos_stats = []
+        equipo_id = request.GET.get('equipo_id')
+        if not equipo_id:
+            return JsonResponse({'error': 'ID de equipo no proporcionado'}, status=400)
         
-        for equipo in Equipo.objects.all():
-            partidos_local = Partido.objects.filter(equipo_local=equipo, simulado=True)
-            partidos_visitante = Partido.objects.filter(equipo_visitante=equipo, simulado=True)
-            
-            victorias = empates = derrotas = 0
-            goles_favor = goles_contra = 0
-            
-            for partido in partidos_local:
-                if partido.goles_local is not None and partido.goles_visitante is not None:
-                    goles_favor += partido.goles_local
-                    goles_contra += partido.goles_visitante
-                    if partido.goles_local > partido.goles_visitante:
-                        victorias += 1
-                    elif partido.goles_local == partido.goles_visitante:
-                        empates += 1
-                    else:
-                        derrotas += 1
-            
-            for partido in partidos_visitante:
-                if partido.goles_local is not None and partido.goles_visitante is not None:
-                    goles_favor += partido.goles_visitante
-                    goles_contra += partido.goles_local
-                    if partido.goles_visitante > partido.goles_local:
-                        victorias += 1
-                    elif partido.goles_visitante == partido.goles_local:
-                        empates += 1
-                    else:
-                        derrotas += 1
-            
-            partidos_jugados = victorias + empates + derrotas
-            puntos = victorias * 3 + empates
-            
-            equipos_stats.append({
-                'equipo': equipo.nombre,
-                'partidos_jugados': partidos_jugados,
-                'victorias': victorias,
-                'empates': empates,
-                'derrotas': derrotas,
-                'goles_favor': goles_favor,
-                'goles_contra': goles_contra,
-                'diferencia_goles': goles_favor - goles_contra,
-                'puntos': puntos
-            })
+        equipo = get_object_or_404(Equipo, id=equipo_id)
         
-        # Ordenar por puntos y diferencia de goles
-        equipos_stats.sort(key=lambda x: (x['puntos'], x['diferencia_goles']), reverse=True)
+        # Calcular estadísticas básicas
+        partidos_local = Partido.objects.filter(equipo_local=equipo, simulado=True)
+        partidos_visitante = Partido.objects.filter(equipo_visitante=equipo, simulado=True)
         
-        return JsonResponse({'estadisticas': equipos_stats})
+        victorias = 0
+        for partido in partidos_local:
+            if partido.goles_local and partido.goles_visitante:
+                if partido.goles_local > partido.goles_visitante:
+                    victorias += 1
+        
+        for partido in partidos_visitante:
+            if partido.goles_local and partido.goles_visitante:
+                if partido.goles_visitante > partido.goles_local:
+                    victorias += 1
+        
+        # Calcular permutaciones y combinaciones
+        num_jugadores = Jugador.objects.filter(equipo=equipo).count()
+        permutaciones = math.factorial(num_jugadores) if num_jugadores <= 10 else "Muy grande"
+        combinaciones = math.comb(num_jugadores, 11) if num_jugadores >= 11 else 0
+        
+        # Calcular ganancias
+        ganancias = Apuesta.objects.filter(equipo=equipo, ganador=True).aggregate(
+            total=Sum('monto')
+        )['total'] or 0
+        
+        return JsonResponse({
+            'victorias': victorias,
+            'permutaciones': permutaciones,
+            'combinaciones': combinaciones,
+            'ganancias': float(ganancias)
+        })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
