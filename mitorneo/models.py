@@ -14,6 +14,14 @@ class Usuario(AbstractUser):
     rol = models.CharField(max_length=20, choices=USER_ROLES, default='apostador')
     saldo_real = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    @property
+    def saldo(self):
+        total_apostado = self.apuestas.aggregate(total=Sum('monto'))['total'] or 0
+        total_ganado = self.apuestas.filter(ganador=True).aggregate(total=Sum('monto'))['total'] or 0
+        ganancia_neta_apuestas = (total_ganado * 2) - total_apostado
+
+        return self.saldo_real + ganancia_neta_apuestas
+
     def es_admin(self):
         return self.rol == 'admin'
 

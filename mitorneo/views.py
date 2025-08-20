@@ -331,30 +331,37 @@ def api_saldo(request):
     return JsonResponse({'saldo': request.user.saldo})
 
 @csrf_exempt
-@login_required
-@user_passes_test(es_apostador)
 @require_http_methods(["POST"])
 def api_recargar_saldo(request):
     try:
         data = json.loads(request.body)
-        monto = decimal.Decimal(data.get('monto'))
-        metodo = data.get('metodo')
-        datos_pago = data.get('datos_pago')
+        monto = data.get('monto')
+        metodo_pago = data.get('metodo_pago')
 
         if monto <= 0:
             return HttpResponseBadRequest('El monto de la recarga debe ser positivo.')
-        
+        if not metodo_pago:
+            return HttpResponseBadRequest('El método de pago es obligatorio.')
+
+        # Actualizamos el saldo real del usuario
         request.user.saldo_real += monto
         request.user.save()
         
         RecargaSaldo.objects.create(
             usuario=request.user,
             monto=monto,
-            metodo_pago=metodo,
-            datos_pago=datos_pago
+            metodo_pago=metodo_pago,
+            datos_pago=json.dumps(datos_pago)
         )
 
-        return JsonResponse({'message': 'Recarga realizada con éxito.', 'nuevo_saldo': request.user.saldo}, status=200)
+        # --- INICIO DE LA CORRECCIÓN ---
+        # Asegúrate de devolver la propiedad 'saldo', no 'saldo_real'.
+        # La propiedad 'saldo' ya incluye el nuevo saldo_real en su cálculo.
+        return JsonResponse({
+            'message': 'Recarga realizada con éxito.', 
+            'saldo': request.user.saldo  # <-- USA LA PROPIEDAD '.saldo'
+        }, status=200)
+        # --- FIN DE LA CORRECCIÓN ---
 
     except (ValueError, decimal.InvalidOperation):
         return HttpResponseBadRequest('Monto inválido.')
@@ -382,19 +389,16 @@ def api_simular_partido(request, partido_id):
             partido.ganador = partido.equipo_local
         elif goles_visitante > goles_local:
             partido.ganador = partido.equipo_visitante
+        else:
+            partido.ganador = None
         # Si es empate, ganador queda como None
         
         partido.save()
 
         # Procesar apuestas ganadoras
-        apuestas_ganadoras = Apuesta.objects.filter(
-            partido=partido,
-            equipo=partido.ganador
-        ) if partido.ganador else []
-        
-        for apuesta in apuestas_ganadoras:
-            apuesta.ganador = True
-            apuesta.save()
+        Apuesta.objects.filter(partido=partido).update(ganador=False) # Reseteamos por si es re-simulación
+        if partido.ganador:
+            Apuesta.objects.filter(partido=partido, equipo=partido.ganador).update(ganador=True)
 
         return JsonResponse({
             'success': True,
@@ -610,58 +614,79 @@ def api_partido_detail(request, partido_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+# mitorneo/views.py
+
+# 1. Quita el decorador @require_http_methods
+# @require_http_methods(["POST"] ) 
 @csrf_exempt
 @login_required
 @user_passes_test(es_apostador)
-@require_http_methods(["POST"])
 def api_apuestas(request):
-    """API para realizar apuestas"""
-    try:
-        data = json.loads(request.body)
-        partido_id = data.get('partido_id')
-        equipo_id = data.get('equipo_id')
-        monto = decimal.Decimal(str(data.get('monto', 0)))
-        
-        if not partido_id or not equipo_id or monto <= 0:
-            return JsonResponse({'error': 'Datos de apuesta inválidos.'}, status=400)
-        
-        partido = get_object_or_404(Partido, id=partido_id)
-        equipo = get_object_or_404(Equipo, id=equipo_id)
-        
-        # Verificar que el partido no haya comenzado
-        if partido.fecha <= timezone.now():
-            return JsonResponse({'error': 'No se puede apostar en partidos que ya comenzaron.'}, status=400)
-        
-        # Verificar que el equipo participe en el partido
-        if equipo not in [partido.equipo_local, partido.equipo_visitante]:
-            return JsonResponse({'error': 'El equipo no participa en este partido.'}, status=400)
-        
-        # Verificar saldo suficiente
-        if request.user.saldo < monto:
-            return JsonResponse({'error': 'Saldo insuficiente.'}, status=400)
-        
-        # Crear apuesta
-        apuesta = Apuesta.objects.create(
-            usuario=request.user,
-            partido=partido,
-            equipo=equipo,
-            monto=monto
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'mensaje': 'Apuesta realizada exitosamente.',
-            'apuesta': {
-                'id': apuesta.id,
-                'partido': f'{partido.equipo_local.nombre} vs {partido.equipo_visitante.nombre}',
-                'equipo_apostado': equipo.nombre,
-                'monto': float(monto),
-                'fecha': apuesta.fecha_apuesta.isoformat()
-            },
-            'nuevo_saldo': float(request.user.saldo - monto)
-        })
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    """
+    API para obtener la lista de apuestas (GET) o crear una nueva apuesta (POST).
+    """
+    # --- INICIO DE LA SOLUCIÓN ---
+
+    # 2. Manejar la petición GET para devolver la lista de apuestas
+    if request.method == 'GET':
+        try:
+            apuestas = Apuesta.objects.filter(usuario=request.user).order_by('-fecha_apuesta')
+            # Preparamos los datos en un formato JSON amigable
+            data = [{
+                'equipo': apuesta.equipo.nombre,
+                'monto': apuesta.monto,
+                'fecha_apuesta': apuesta.fecha_apuesta.strftime('%d/%m/%Y %H:%M'),
+                'partido': f"{apuesta.partido.equipo_local.nombre} vs {apuesta.partido.equipo_visitante.nombre}",
+                'ganador': apuesta.ganador
+            } for apuesta in apuestas]
+            return JsonResponse(data, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': f'Error al obtener apuestas: {str(e)}'}, status=500)
+
+    # 3. Mantener la lógica POST que ya tenías
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            partido_id = data.get('partido_id')
+            equipo_id = data.get('equipo_id')
+            monto = decimal.Decimal(str(data.get('monto', 0)))
+            
+            if not partido_id or not equipo_id or monto <= 0:
+                return JsonResponse({'error': 'Datos de apuesta inválidos.'}, status=400)
+            
+            partido = get_object_or_404(Partido, id=partido_id)
+            equipo = get_object_or_404(Equipo, id=equipo_id)
+            
+            if partido.fecha <= timezone.now():
+                return JsonResponse({'error': 'No se puede apostar en partidos que ya comenzaron.'}, status=400)
+            
+            if equipo not in [partido.equipo_local, partido.equipo_visitante]:
+                return JsonResponse({'error': 'El equipo no participa en este partido.'}, status=400)
+            
+            # Usamos la propiedad 'saldo' que ya tienes en tu modelo Usuario
+            if request.user.saldo < monto:
+                return JsonResponse({'error': 'Saldo insuficiente.'}, status=400)
+            
+            apuesta = Apuesta.objects.create(
+                usuario=request.user,
+                partido=partido,
+                equipo=equipo,
+                monto=monto
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'mensaje': 'Apuesta realizada exitosamente.',
+                # Devolvemos el nuevo saldo para que el frontend lo pueda actualizar
+                'nuevo_saldo': request.user.saldo 
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    # 4. Devolver un error si se usa otro método no soportado (como PUT o DELETE)
+    return JsonResponse({'error': f'Método {request.method} no permitido.'}, status=405)
+    # --- FIN DE LA SOLUCIÓN ---
+
 
 @login_required
 @user_passes_test(es_admin)

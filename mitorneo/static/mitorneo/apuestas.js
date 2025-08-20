@@ -95,14 +95,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Cantidad inválida.");
                 return;
             }
-
             fetch("/torneo/api/recargar_saldo/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": getCookie("csrftoken")
                 },
-                body: JSON.stringify({ monto: monto, metodo_pago: metodo_pago, datos_pago: datos_pago })
+                body: JSON.stringify({ 
+                    monto: monto,
+                    metodo_pago: metodo_pago,
+                    datos_pago: datos_pago
+                })
             })
             .then(response => {
                 if (!response.ok) {
@@ -111,25 +114,44 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
-                alert("Saldo recargado correctamente.");
-                console.log("Saldo recibido tras recarga:", data.saldo);
-                actualizarSaldoVisual(data.saldo);
-                const modal = document.getElementById("modal-recarga");
-                if (modal) {
-                    modal.style.display = "none";
+                // --- INICIO DE LA SOLUCIÓN ---
+
+                // 1. Imprimimos en la consola para depurar (esto es útil, lo mantenemos).
+                console.log("Respuesta completa de la API:", data);
+
+                // 2. Buscamos el valor del saldo de forma segura.
+                // Intentará usar 'data.saldo'. Si es undefined, intentará 'data.nuevo_saldo'.
+                const saldoRecibido = data.saldo || data.nuevo_saldo;
+
+                // 3. Verificamos si hemos encontrado un valor válido ANTES de usarlo.
+                if (saldoRecibido !== undefined && saldoRecibido !== null) {
+                    alert("Saldo recargado correctamente.");
+                    actualizarSaldoVisual(saldoRecibido); // ¡Ahora pasamos un valor que sabemos que existe!
+                    
+                    // Cerramos el modal y limpiamos el input
+                    const modal = document.getElementById("modal-recarga");
+                    if (modal) {
+                        modal.style.display = "none";
+                    }
+                    if (montoInput) {
+                        montoInput.value = "";
+                    }
+                } else {
+                    // Si no encontramos el saldo, informamos al usuario y al desarrollador.
+                    alert("Error: La recarga se procesó, pero no se pudo obtener el nuevo saldo. Por favor, recargue la página.");
+                    console.error("La respuesta de la API no contenía un campo 'saldo' o 'nuevo_saldo' válido.", data);
                 }
-                if (montoInput) {
-                    montoInput.value = "";
-                }
+                // --- FIN DE LA SOLUCIÓN ---
             })
             .catch(error => {
-                alert(error.message);
+                alert("Error al procesar la recarga: " + error.message);
             });
 
     function actualizarSaldoVisual(nuevoSaldo) {
         const saldoUsuario = document.getElementById("saldo-usuario");
-        if (saldoUsuario) {
-            saldoUsuario.textContent = nuevoSaldo.toFixed(2);
+        // Esta función ahora es segura porque solo la llamamos si 'nuevoSaldo' tiene un valor.
+        if (saldoUsuario && nuevoSaldo !== undefined && nuevoSaldo !== null) {
+            saldoUsuario.textContent = parseFloat(nuevoSaldo).toFixed(2);
         }
     }
         });
